@@ -11,9 +11,7 @@ pub fn init() {
     unsafe {
         C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
         C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
-        println!("\x1b[1;1H Before C2D_Prepare");
         C2D_Prepare();
-        println!("\x1b[1;1H After C2D_Prepare");
     }
 }
 
@@ -43,18 +41,18 @@ pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
         C2D_TargetClear(target_screen, clear_color);
         C2D_SceneBegin(target_screen);
 
-        C2D_DrawRectangle(
-            SCREEN_WIDTH - 50.0,
-            0.0,
-            0.0,
-            10.0,
-            10.0,
-            clr_rec_1,
-            clr_rec_2,
-            clr_rec_3,
-            clr_rec_4,
-        );
-
+        // C2D_DrawRectangle(
+        //     SCREEN_WIDTH - 50.0,
+        //     0.0,
+        //     0.0,
+        //     10.0,
+        //     10.0,
+        //     clr_rec_1,
+        //     clr_rec_2,
+        //     clr_rec_3,
+        //     clr_rec_4,
+        // );
+       
         C3D_FrameEnd(0);
     }
 }
