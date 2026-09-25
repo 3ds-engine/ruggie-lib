@@ -1,4 +1,4 @@
-use std::ptr::{null, null_mut};
+use std::{ffi::CString, ptr::{null, null_mut}};
 
 use citro2d_sys::*;
 use citro3d_sys::*;
@@ -50,8 +50,10 @@ pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget, x: f32, y:
 }
 
 pub fn create_sprite_sheet(filename: &str) -> Option<C2D_SpriteSheet> {
+    let filename_cstr = CString::new(filename).ok()?;
     unsafe {
-        let sprite_sheet = C2D_SpriteSheetLoad(filename.as_ptr());
+        let sprite_sheet = C2D_SpriteSheetLoad(filename_cstr.as_ptr());
+
         if sprite_sheet.is_null() {
             None
         } else {
