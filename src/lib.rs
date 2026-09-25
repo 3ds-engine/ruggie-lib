@@ -38,15 +38,15 @@ pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
         const SCREEN_WIDTH: f32 = 400.0;
 
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(target_screen, clear_color);
+        // C2D_TargetClear(target_screen, clear_color);
         C2D_SceneBegin(target_screen);
 
         C2D_DrawRectangle(
             SCREEN_WIDTH - 50.0,
             0.0,
             0.0,
-            10.0,
-            10.0,
+            50.0,
+            50.0,
             clr_rec_1,
             clr_rec_2,
             clr_rec_3,
