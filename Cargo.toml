@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 citro3d-sys = { git = "https://github.com/rust3ds/citro3d-rs.git", package = "citro3d-sys" }
+citro3d = { git = "https://github.com/rust3ds/citro3d-rs.git", package = "citro3d" }
