@@ -1,19 +1,19 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
-pub const TOP : u8 = 0;
-pub const LEFT : u8 = 0;
+pub const TOP: u8 = 0;
+pub const LEFT: u8 = 0;
 
-pub const BOTTOM : u8 = 1;
-pub const RIGHT : u8 = 1;
+pub const BOTTOM: u8 = 1;
+pub const RIGHT: u8 = 1;
 
 pub fn init() {
     unsafe {
         C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
         C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
-       printf("\x1b[1;1H Before C2D_Prepare");
+        println!("\x1b[1;1H Before C2D_Prepare");
         C2D_Prepare();
-       printf("\x1b[1;1H After C2D_Prepare");
+        println!("\x1b[1;1H After C2D_Prepare");
     }
 }
 
@@ -25,9 +25,7 @@ pub fn end() {
 }
 
 pub fn create_top_screen() -> *mut citro2d_sys::C3D_RenderTarget {
-    unsafe {
-        C2D_CreateScreenTarget(TOP, LEFT)
-    }
+    unsafe { C2D_CreateScreenTarget(TOP, LEFT) }
 }
 
 pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
