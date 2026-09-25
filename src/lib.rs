@@ -15,6 +15,11 @@ pub fn end() {
     }
 }
 
+pub fn create_top_screen() -> *mut citro2d_sys::C3D_RenderTarget {
+    unsafe {
+        C2D_CreateScreenTarget(0, 0)
+    }
+}
 pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
     unsafe {
         let clear_color = C2D_Color32(0xFF, 0xD8, 0xB0, 0x68);
