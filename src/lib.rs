@@ -1,14 +1,47 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use citro2d_sys::*;
+use citro3d_sys::*;
+
+pub fn init() {
+    unsafe {
+        C3D_Init(1024usize);
+        C2D_Init(1024usize);
+    }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub fn end() {
+    unsafe {
+        C2D_Fini();
+        C3D_Fini();
+    }
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
+    unsafe {
+        let clear_color = C2D_Color32(0xFF, 0xD8, 0xB0, 0x68);
+
+        let clr_rec_1 = C2D_Color32(0x9A, 0x6C, 0xB9, 0xFF);
+        let clr_rec_2 = C2D_Color32(0xFF, 0xFF, 0x2C, 0xFF);
+        let clr_rec_3 = C2D_Color32(0xD8, 0xF6, 0x0F, 0xFF);
+        let clr_rec_4 = C2D_Color32(0x40, 0xEA, 0x87, 0xFF);
+
+        const SCREEN_WIDTH: f32 = 400.0;
+
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        C2D_TargetClear(target_screen, clear_color);
+        C2D_SceneBegin(target_screen);
+
+        C2D_DrawRectangle(
+            SCREEN_WIDTH - 50.0,
+            0.0,
+            0.0,
+            50.0,
+            50.0,
+            clr_rec_1,
+            clr_rec_2,
+            clr_rec_3,
+            clr_rec_4,
+        );
+
+        C3D_FrameEnd(0);
     }
 }
