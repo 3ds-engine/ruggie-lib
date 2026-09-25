@@ -1,10 +1,17 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
+pub const TOP : u8 = 0;
+pub const LEFT : u8 = 0;
+
+pub const BOTTOM : u8 = 1;
+pub const RIGHT : u8 = 1;
+
 pub fn init() {
     unsafe {
         C3D_Init(1024usize);
         C2D_Init(1024usize);
+        C2D_Prepare();
     }
 }
 
@@ -17,9 +24,10 @@ pub fn end() {
 
 pub fn create_top_screen() -> *mut citro2d_sys::C3D_RenderTarget {
     unsafe {
-        C2D_CreateScreenTarget(0, 0)
+        C2D_CreateScreenTarget(TOP, LEFT)
     }
 }
+
 pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
     unsafe {
         let clear_color = C2D_Color32(0xFF, 0xD8, 0xB0, 0x68);
