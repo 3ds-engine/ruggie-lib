@@ -26,7 +26,7 @@ pub fn create_top_screen() -> *mut citro2d_sys::C3D_RenderTarget {
     unsafe { C2D_CreateScreenTarget(TOP, LEFT) }
 }
 
-pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
+pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget, x: f32, y: f32) {
     unsafe {
         let clear_color = C2D_Color32(0xFF, 0xD8, 0xB0, 0xFF);
 
@@ -35,15 +35,13 @@ pub fn draw_square(target_screen: *mut citro2d_sys::C3D_RenderTarget) {
         let clr_rec_3 = C2D_Color32(0xD8, 0xF6, 0x0F, 0xFF);
         let clr_rec_4 = C2D_Color32(0x40, 0xEA, 0x87, 0xFF);
 
-        const SCREEN_WIDTH: f32 = 400.0;
-
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        // C2D_TargetClear(target_screen, clear_color);
+        C2D_TargetClear(target_screen, clear_color);
         C2D_SceneBegin(target_screen);
 
         C2D_DrawRectangle(
-            SCREEN_WIDTH - 50.0,
-            0.0,
+            x,
+            y,
             0.0,
             50.0,
             50.0,
