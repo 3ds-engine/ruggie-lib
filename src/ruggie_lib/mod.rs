@@ -21,8 +21,16 @@ impl RuggieLib {
             romfs: None,
         })
     }
-}
 
+    pub fn with_romfs(self) -> ctru::Result<Self> {
+        let romfs = RomFS::new()?;
+        Ok(RuggieLib {
+            romfs: Some(romfs),
+            ..self
+        })
+    }
+
+}
 
 pub enum RuggieLibCreationError {
     FailedApt,
