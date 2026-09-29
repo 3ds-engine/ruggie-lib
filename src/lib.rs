@@ -102,3 +102,10 @@ pub fn draw_sprite(target_screen: *mut citro2d_sys::C3D_RenderTarget, sprite: &m
         C3D_FrameEnd(0);
     }
 }
+
+pub mod ruggie_lib;
+
+pub mod prelude{
+    use super::*;
+    pub use ruggie_lib::RuggieLib;
+}
