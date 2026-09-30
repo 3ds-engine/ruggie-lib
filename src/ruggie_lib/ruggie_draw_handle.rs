@@ -23,7 +23,7 @@ impl RuggieDrawHandle{
         }
     }
 
-    pub fn draw_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color){
+    pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color){
         unsafe{
             let col = C2D_Color32(color.r, color.g, color.b, color.a);
             C2D_DrawRectangle(
