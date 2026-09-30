@@ -42,6 +42,7 @@ impl Drop for RuggieDrawHandle{
     }
 }
 
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Color{
     r: u8,
     g: u8,
