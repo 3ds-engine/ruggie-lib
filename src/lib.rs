@@ -14,6 +14,7 @@ pub fn init() {
         C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
         C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
         C2D_Prepare();
+        
     }
 }
 
