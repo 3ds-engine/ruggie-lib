@@ -52,15 +52,20 @@ impl RuggieLib {
         RuggieDrawHandle::new(&self.bottom_screen)
     }
 
-    /* 
-    pub fn with_romfs(self) -> ctru::Result<Self> {
+    pub fn with_romfs(mut self) -> ctru::Result<Self> {
         let romfs = RomFS::new()?;
-        Ok(RuggieLib {
-            romfs: Some(romfs),
-            ..self
-        })
+        self.romfs = Some(romfs);
+
+        Ok(self)
     }
-    */
+
+    pub fn is_running(&self) -> bool{
+        self.apt.main_loop()
+    }
+
+    pub fn wait_for_vblank(&self){
+        self.gfx.wait_for_vblank();
+    }
 
 }
 
