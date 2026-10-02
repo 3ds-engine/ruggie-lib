@@ -1,10 +1,13 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
-use crate::ruggie_lib::{RuggieLib, screen::RuggieScreenTarget};
+use crate::{RuggieLib, screen::RuggieScreenTarget};
 
 pub mod color;
 use color::Color;
+
+pub mod sprite;
+pub mod sprite_sheet;
 
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
