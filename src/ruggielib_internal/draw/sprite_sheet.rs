@@ -20,8 +20,8 @@ impl SpriteSheet {
 
     pub fn get_sprite(&self, index: usize) -> Sprite {
         unsafe {
-            let sprite = Sprite::default();
-            C2D_SpriteFromSheet(&mut sprite.get_raw(), self.0, index);
+            let mut sprite = Sprite::default();
+            C2D_SpriteFromSheet(sprite.get_raw_mut(), self.0, index);
 
             sprite
         }

@@ -28,7 +28,12 @@ impl Sprite {
     }
 
     // SAFETY: Accessing the internal pointer is safe as long as it doesn't mutate
-    pub unsafe fn get_raw(&self) -> C2D_Sprite {
-        self.0
+    pub unsafe fn get_raw(&self) -> &C2D_Sprite {
+        &self.0
+    }
+
+    // SAFETY: Accessing the internal pointer is safe as long as it doesn't mutate
+    pub unsafe fn get_raw_mut(&mut self) -> &mut C2D_Sprite {
+        &mut self.0
     }
 }

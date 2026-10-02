@@ -97,17 +97,17 @@ impl<'a> RuggieDrawHandle<'a> {
         }
     }
 
-    pub fn draw_sprite(&self, sprite: &Sprite, x: f32, y: f32) {
+    pub fn draw_sprite(&self, sprite: &mut Sprite, x: f32, y: f32) {
         unsafe {
             // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
             // sprite themselves, otherwise it is impossible to create an invalid sprite
-            let mut raw_sprite = sprite.get_raw();
+            let raw_sprite = sprite.get_raw_mut();
 
 
             // SAFETY: The only way to call these ffi functions is by creating an instance of
             // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
-            C2D_SpriteSetPos(&mut raw_sprite, x, y);
-            C2D_DrawSprite(&mut raw_sprite);
+            C2D_SpriteSetPos(raw_sprite, x, y);
+            C2D_DrawSprite(raw_sprite);
         }
     }
 }
