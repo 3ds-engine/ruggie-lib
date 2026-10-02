@@ -28,3 +28,6 @@ panic_in_result_fn = "deny"
 panic = "deny"
 exit = "deny"
 as_conversions = "deny"
+
+[dev-dependencies]
+test-runner = { git = "https://github.com/rust3ds/ctru-rs" }

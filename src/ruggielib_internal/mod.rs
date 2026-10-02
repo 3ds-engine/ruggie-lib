@@ -14,6 +14,7 @@ use citro2d_sys::*;
 use citro3d_sys::*;
 use ctru::{prelude::*, services::{gfx::TopScreen3D, romfs::RomFS}};
 
+pub mod tests;
 pub struct RuggieLib {
     // Base tools
     apt: Apt,

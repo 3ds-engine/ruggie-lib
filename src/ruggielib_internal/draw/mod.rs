@@ -9,6 +9,8 @@ use color::Color;
 pub mod sprite;
 pub mod sprite_sheet;
 
+use test;
+
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
     current_screen: *const RuggieScreenTarget,
