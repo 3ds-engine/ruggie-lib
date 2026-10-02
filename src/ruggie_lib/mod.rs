@@ -24,9 +24,9 @@ impl RuggieLib {
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
 
-        let top_left = RuggieScreenTarget::new_top_screen();
-        let top_right = RuggieScreenTarget::new_top_screen();
-        let bottom_screen = RuggieScreenTarget::new_bottom_screen();
+        let top_left = RuggieScreenTarget::new_top_left();
+        let top_right = RuggieScreenTarget::new_top_right();
+        let bottom_screen = RuggieScreenTarget::new_bottom();
 
         unsafe{
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);

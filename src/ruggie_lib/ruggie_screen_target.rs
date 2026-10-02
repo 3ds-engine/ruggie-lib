@@ -6,6 +6,10 @@ const LEFT: u8 = 0;
 const BOTTOM: u8 = 1;
 const RIGHT: u8 = 1;
 
+const TOP_WIDTH : u32 = 400;
+const BOT_WIDTH : u32 = 320;
+const SCREEN_HEIGHT : u32 = 240;
+
 pub struct RuggieScreenTarget {
     screen: *mut C3D_RenderTarget,
     width: u32,
@@ -13,25 +17,37 @@ pub struct RuggieScreenTarget {
 }
 
 impl RuggieScreenTarget {
-    pub fn new_top_screen() -> Self{
+    pub fn new_top_left() -> Self {
         unsafe { 
             let top_screen = C2D_CreateScreenTarget(TOP, LEFT);
 
             RuggieScreenTarget { 
                 screen: top_screen,
-                width: 400,
-                height: 240,
+                width: TOP_WIDTH,
+                height: SCREEN_HEIGHT,
             }
         }
     }
 
-    pub fn new_bottom_screen() -> Self {
+    pub fn new_top_right() -> Self {
+        unsafe { 
+            let top_screen = C2D_CreateScreenTarget(TOP, RIGHT);
+
+            RuggieScreenTarget { 
+                screen: top_screen,
+                width: TOP_WIDTH,
+                height: SCREEN_HEIGHT,
+            }
+        }
+    }
+
+    pub fn new_bottom() -> Self {
         unsafe { 
             let bottom_screen = C2D_CreateScreenTarget(BOTTOM, LEFT);
             RuggieScreenTarget { 
                 screen: bottom_screen,
-                width: 320,
-                height: 240,
+                width: BOT_WIDTH,
+                height: SCREEN_HEIGHT,
             }
         }
     }
