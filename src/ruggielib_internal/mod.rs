@@ -93,7 +93,7 @@ impl RuggieLib {
         self.gfx.wait_for_vblank();
     }
 
-    pub fn get_3d_slider_state() -> f32{
+    pub fn get_3d_slider_state(&self) -> f32{
         unsafe{
             osGet3DSliderState()
         }
