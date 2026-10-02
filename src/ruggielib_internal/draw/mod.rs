@@ -1,7 +1,10 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
-use crate::ruggie_lib::{RuggieLib, ruggie_screen_target::RuggieScreenTarget};
+use crate::ruggie_lib::{RuggieLib, screen::RuggieScreenTarget};
+
+pub mod color;
+use color::Color;
 
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
@@ -99,19 +102,5 @@ impl Drop for RuggieDrawHandle<'_> {
         unsafe {
             C3D_FrameEnd(0);
         }
-    }
-}
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
-}
-
-impl Color {
-    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
-        Color { r, g, b, a }
     }
 }

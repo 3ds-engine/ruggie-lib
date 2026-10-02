@@ -1,13 +1,18 @@
+pub mod deprecated;
+
+pub mod errors;
+use errors::RuggieLibCreationError;
+
+pub mod draw;
+use draw::RuggieDrawHandle;
+
+pub mod screen;
+use screen::RuggieScreenTarget;
+
 use citro2d_sys::*;
 use citro3d_sys::*;
 use ctru::{prelude::*, services::romfs::RomFS};
-pub mod ruggie_draw_handle;
-pub mod ruggie_screen_target;
-use ruggie_screen_target::RuggieScreenTarget;
 
-use crate::ruggie_lib::ruggie_draw_handle::RuggieDrawHandle;
-
-#[allow(dead_code)]
 pub struct RuggieLib {
     // Base tools
     apt: Apt,
@@ -34,8 +39,8 @@ impl RuggieLib {
         let bottom_screen = RuggieScreenTarget::new_bottom();
 
         unsafe{
-            C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
-            C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
+            citro3d_sys::C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
+            citro2d_sys::C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
             C2D_Prepare();
         }
 
@@ -91,13 +96,6 @@ impl Drop for RuggieLib {
             C3D_Fini();
         }
     }
-}
-
-#[derive(Debug)]
-pub enum RuggieLibCreationError {
-    FailedApt,
-    FailedHid,
-    FailedGfx,
 }
 
 pub enum Feature {

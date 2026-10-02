@@ -1,9 +1,9 @@
-
-
-pub mod ruggie_lib;
-pub mod deprecated;
+pub mod ruggielib_internal;
+pub use ruggielib_internal::*;
 
 pub mod prelude{
     use super::*;
-    pub use ruggie_lib::RuggieLib;
+    pub use crate::RuggieLib;
+    pub use screen::RuggieScreenTarget;
+    pub use draw::color::Color;
 }
