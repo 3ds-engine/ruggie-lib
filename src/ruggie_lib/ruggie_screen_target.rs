@@ -18,6 +18,8 @@ pub struct RuggieScreenTarget {
 
 impl RuggieScreenTarget {
     pub fn new_top_left() -> Self {
+        // SAFETY: Using an ffi function that creates a mutable pointer, otherwise the pointer is
+        // never derefed in this block
         unsafe { 
             let top_screen = C2D_CreateScreenTarget(TOP, LEFT);
 
@@ -30,6 +32,8 @@ impl RuggieScreenTarget {
     }
 
     pub fn new_top_right() -> Self {
+        // SAFETY: Using an ffi function that creates a mutable pointer, otherwise the pointer is
+        // never derefed in this block
         unsafe { 
             let top_screen = C2D_CreateScreenTarget(TOP, RIGHT);
 
@@ -42,6 +46,8 @@ impl RuggieScreenTarget {
     }
 
     pub fn new_bottom() -> Self {
+        // SAFETY: Using an ffi function that creates a mutable pointer, otherwise the pointer is
+        // never derefed in this block
         unsafe { 
             let bottom_screen = C2D_CreateScreenTarget(BOTTOM, LEFT);
             RuggieScreenTarget { 
@@ -61,6 +67,8 @@ impl RuggieScreenTarget {
     }
 
     pub fn get_screen(&self) -> &mut C3D_RenderTarget {
+        // SAFETY: Converting a mutable pointer that must be valid (since the only way to access a
+        // RuggieScreenTarget is by creating said pointer) to a mutable reference is always safe
         unsafe {
             self.screen.as_mut_unchecked()
         }
