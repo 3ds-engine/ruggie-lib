@@ -11,7 +11,7 @@ use screen::RuggieScreenTarget;
 
 use citro2d_sys::*;
 use citro3d_sys::*;
-use ctru::{prelude::*, services::romfs::RomFS};
+use ctru::{prelude::*, services::{gfx::TopScreen3D, romfs::RomFS}};
 
 pub struct RuggieLib {
     // Base tools
@@ -72,6 +72,11 @@ impl RuggieLib {
                 Feature::RomFS => {
                     let romfs = RomFS::new()?;
                     self.romfs = Some(romfs)
+                },
+                Feature::Stereoscopic3D =>{
+                    unsafe{
+                        ctru_sys::gfxSet3D(true);
+                    }
                 }
             }
         }
@@ -100,4 +105,5 @@ impl Drop for RuggieLib {
 
 pub enum Feature {
     RomFS,
+    Stereoscopic3D
 }
