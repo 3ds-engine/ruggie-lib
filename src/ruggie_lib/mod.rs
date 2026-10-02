@@ -12,8 +12,9 @@ pub struct RuggieLib {
     apt: Apt,
     hid: Hid,
     gfx: Gfx,
-    top_screen: RuggieScreenTarget,
-    bottom_screen: RuggieScreenTarget,
+
+    screens: [RuggieScreenTarget; 3],
+
     romfs: Option<RomFS>,
 }
 
@@ -23,7 +24,8 @@ impl RuggieLib {
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
 
-        let top_screen = RuggieScreenTarget::new_top_screen();
+        let top_left = RuggieScreenTarget::new_top_screen();
+        let top_right = RuggieScreenTarget::new_top_screen();
         let bottom_screen = RuggieScreenTarget::new_bottom_screen();
 
         unsafe{
@@ -32,29 +34,39 @@ impl RuggieLib {
             C2D_Prepare();
         }
 
-        
-
         Ok(RuggieLib {
             apt,
             hid,
             gfx,
-            top_screen,
-            bottom_screen,
+            screens : [
+                top_left,
+                top_right,
+                bottom_screen,
+            ],
             romfs: None,
         })
     }
 
-    pub fn start_drawing_top(&self) -> RuggieDrawHandle{
-        RuggieDrawHandle::new(&self.top_screen)
-    }
-
-    pub fn start_drawing_bottom(&self) -> RuggieDrawHandle{
-        RuggieDrawHandle::new(&self.bottom_screen)
+    pub fn start_drawing(&mut self) -> RuggieDrawHandle<'_> {
+        RuggieDrawHandle::new(self)
     }
 
     pub fn with_romfs(mut self) -> ctru::Result<Self> {
         let romfs = RomFS::new()?;
         self.romfs = Some(romfs);
+
+        Ok(self)
+    }
+
+    pub fn with(mut self, features: impl IntoIterator<Item=Feature>) -> ctru::Result<Self> {
+        for feature in features.into_iter() {
+            match feature {
+                Feature::RomFS => {
+                    let romfs = RomFS::new()?;
+                    self.romfs = Some(romfs)
+                }
+            }
+        }
 
         Ok(self)
     }
@@ -69,7 +81,7 @@ impl RuggieLib {
 
 }
 
-impl Drop for RuggieLib{
+impl Drop for RuggieLib {
     fn drop(&mut self) {
         unsafe {
             C2D_Fini();
@@ -78,8 +90,13 @@ impl Drop for RuggieLib{
     }
 }
 
+#[derive(Debug)]
 pub enum RuggieLibCreationError {
     FailedApt,
     FailedHid,
     FailedGfx,
+}
+
+pub enum Feature {
+    RomFS,
 }
