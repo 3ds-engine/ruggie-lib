@@ -33,16 +33,16 @@ impl RuggieLib {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
-
-        let top_left_screen = RuggieScreenTarget::new_top_left();
-        let top_right_screen = RuggieScreenTarget::new_top_right();
-        let bottom_screen = RuggieScreenTarget::new_bottom();
-
+        
         unsafe{
             citro3d_sys::C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
             citro2d_sys::C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
             C2D_Prepare();
         }
+
+        let top_left_screen = RuggieScreenTarget::new_top_left();
+        let top_right_screen = RuggieScreenTarget::new_top_right();
+        let bottom_screen = RuggieScreenTarget::new_bottom();
 
         Ok(RuggieLib {
             apt,
