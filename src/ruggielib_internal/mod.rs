@@ -1,6 +1,7 @@
 pub mod deprecated;
 
 pub mod errors;
+use ctru_sys::osGet3DSliderState;
 use errors::RuggieLibCreationError;
 
 pub mod draw;
@@ -90,6 +91,12 @@ impl RuggieLib {
 
     pub fn wait_for_vblank(&self){
         self.gfx.wait_for_vblank();
+    }
+
+    pub fn get_3d_slider_state() -> f32{
+        unsafe{
+            osGet3DSliderState()
+        }
     }
 
 }
