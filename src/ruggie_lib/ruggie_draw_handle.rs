@@ -1,45 +1,59 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
-use crate::ruggie_lib::RuggieLib;
+use crate::ruggie_lib::{RuggieLib, ruggie_screen_target::RuggieScreenTarget};
 
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
-    screen_index: usize,
+    current_screen: *const RuggieScreenTarget,
 }
 
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
-        let screen_index = 0usize;
-        let target_screen = lib.screens[screen_index].get_screen();
+        let current_screen : *const RuggieScreenTarget = &lib.top_left_screen;
         unsafe {
             C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            C2D_SceneBegin(target_screen);
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
         }
 
         Self { 
             lib, 
-            screen_index 
+            current_screen
         }
     }
 
     pub fn draw_top_left(&mut self) {
-        self.screen_index = 0;
+        let current_screen : *const RuggieScreenTarget = &self.lib.top_left_screen;
+        unsafe {
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+        }
+
+        self.current_screen = current_screen;
     }
 
     pub fn draw_top_right(&mut self) {
-        self.screen_index = 1;
+        let current_screen : *const RuggieScreenTarget = &self.lib.top_right_screen;
+        unsafe {
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+        }
+
+        self.current_screen = current_screen;
     }
 
     pub fn draw_bottom(&mut self) {
-        self.screen_index = 2;
+        let current_screen : *const RuggieScreenTarget = &self.lib.bottom_screen;
+        unsafe {
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+        }
+
+        self.current_screen = current_screen;
     }
 
 
     pub fn clear_screen(&mut self, clear_color: Color) {
         unsafe {
             C2D_TargetClear(
-                self.lib.screens[self.screen_index].get_screen(),
+                self.current_screen.as_ref_unchecked().get_screen(),
                 C2D_Color32(clear_color.r, clear_color.g, clear_color.b, clear_color.a),
             );
         }

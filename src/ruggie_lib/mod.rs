@@ -9,12 +9,17 @@ use crate::ruggie_lib::ruggie_draw_handle::RuggieDrawHandle;
 
 #[allow(dead_code)]
 pub struct RuggieLib {
+    // Base tools
     apt: Apt,
     hid: Hid,
     gfx: Gfx,
 
-    pub screens: [RuggieScreenTarget; 3],
+    // Screens
+    pub top_left_screen : RuggieScreenTarget,
+    pub top_right_screen : RuggieScreenTarget,
+    pub bottom_screen : RuggieScreenTarget,
 
+    // Features
     romfs: Option<RomFS>,
 }
 
@@ -24,8 +29,8 @@ impl RuggieLib {
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
 
-        let top_left = RuggieScreenTarget::new_top_left();
-        let top_right = RuggieScreenTarget::new_top_right();
+        let top_left_screen = RuggieScreenTarget::new_top_left();
+        let top_right_screen = RuggieScreenTarget::new_top_right();
         let bottom_screen = RuggieScreenTarget::new_bottom();
 
         unsafe{
@@ -38,11 +43,9 @@ impl RuggieLib {
             apt,
             hid,
             gfx,
-            screens : [
-                top_left,
-                top_right,
-                bottom_screen,
-            ],
+            top_left_screen,
+            top_right_screen,
+            bottom_screen,
             romfs: None,
         })
     }
