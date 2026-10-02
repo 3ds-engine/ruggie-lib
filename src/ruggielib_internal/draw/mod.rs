@@ -1,7 +1,7 @@
 use citro2d_sys::*;
 use citro3d_sys::*;
 
-use crate::{RuggieLib, screen::RuggieScreenTarget};
+use crate::{RuggieLib, draw::sprite::Sprite, screen::RuggieScreenTarget};
 
 pub mod color;
 use color::Color;
@@ -94,6 +94,20 @@ impl<'a> RuggieDrawHandle<'a> {
         unsafe {
             let col = C2D_Color32(color.r, color.g, color.b, color.a);
             C2D_DrawRectangle(x, y, 0.0, w, h, col, col, col, col);
+        }
+    }
+
+    pub fn draw_sprite(&self, sprite: &Sprite, x: f32, y: f32) {
+        unsafe {
+            // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
+            // sprite themselves, otherwise it is impossible to create an invalid sprite
+            let mut raw_sprite = sprite.get_raw();
+
+
+            // SAFETY: The only way to call these ffi functions is by creating an instance of
+            // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+            C2D_SpriteSetPos(&mut raw_sprite, x, y);
+            C2D_DrawSprite(&mut raw_sprite);
         }
     }
 }
