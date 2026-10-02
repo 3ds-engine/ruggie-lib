@@ -93,11 +93,11 @@ pub fn draw_sprite(target_screen: *mut citro2d_sys::C3D_RenderTarget, sprite: &m
     unsafe {
         let clear_color = C2D_Color32(0xFF, 0xD8, 0xB0, 0xFF);
 
-        C2D_SpriteSetPos(sprite, x, y);
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(target_screen, clear_color);
         C2D_SceneBegin(target_screen);
+        C2D_TargetClear(target_screen, clear_color);
 
+        C2D_SpriteSetPos(sprite, x, y);
         C2D_DrawSprite(sprite);
 
         C3D_FrameEnd(0);
