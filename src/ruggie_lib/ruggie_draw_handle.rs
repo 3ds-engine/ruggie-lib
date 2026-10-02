@@ -11,10 +11,10 @@ pub struct RuggieDrawHandle<'a> {
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
         let screen_index = 0usize;
-        let target_screen = &mut lib.screens[screen_index];
+        let target_screen = lib.screens[screen_index].get_screen();
         unsafe {
             C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            C2D_SceneBegin(&mut target_screen.screen);
+            C2D_SceneBegin(target_screen);
         }
 
         Self { 
@@ -39,7 +39,7 @@ impl<'a> RuggieDrawHandle<'a> {
     pub fn clear_screen(&mut self, clear_color: Color) {
         unsafe {
             C2D_TargetClear(
-                &mut self.lib.screens[self.screen_index].screen,
+                self.lib.screens[self.screen_index].get_screen(),
                 C2D_Color32(clear_color.r, clear_color.g, clear_color.b, clear_color.a),
             );
         }

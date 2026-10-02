@@ -13,7 +13,7 @@ pub struct RuggieLib {
     hid: Hid,
     gfx: Gfx,
 
-    screens: [RuggieScreenTarget; 3],
+    pub screens: [RuggieScreenTarget; 3],
 
     romfs: Option<RomFS>,
 }
