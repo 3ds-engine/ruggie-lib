@@ -1,5 +1,6 @@
 #![feature(custom_test_frameworks)]
-#![test_runner(test_runner::run)]
+#![test_runner(test_runner::run_console)]
+#![feature(test)]
 
 pub mod ruggielib_internal;
 pub use ruggielib_internal::*;

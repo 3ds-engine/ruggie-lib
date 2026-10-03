@@ -30,4 +30,4 @@ exit = "deny"
 as_conversions = "deny"
 
 [dev-dependencies]
-test-runner = { git = "https://github.com/rust3ds/ctru-rs" }
+test-runner = { path = "patches/ctru-rs/test-runner" }
