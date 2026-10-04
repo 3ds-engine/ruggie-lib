@@ -30,4 +30,4 @@ exit = "deny"
 as_conversions = "deny"
 
 [dev-dependencies]
-test-runner = { path = "patches/ctru-rs/test-runner" }
+test-runner = { path = "dependencies/test-runner" }
