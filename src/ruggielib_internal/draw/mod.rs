@@ -121,13 +121,13 @@ impl<'a> RuggieDrawHandle<'a> {
 
 // --- 2D Primitives
 impl<'a> RuggieDrawHandle<'a> {
-    pub fn draw_line(&self, x0: f32, y0: f32, x1: f32, y1: f32, thickness: f32, color: Color) {
+    pub fn draw_line(&self, x0: f32, y0: f32, x1: f32, y1: f32, thickness: u32, color: Color) {
         let color = Self::c2d_color(color);
 
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness, 0.0);
+            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness as f32, 0.0);
         }
     }
 }
@@ -199,17 +199,17 @@ impl<'a> RuggieDrawHandle<'a> {
         y: f32,
         w: f32,
         h: f32,
-        thickness: f32,
+        thickness: u32,
         color: Color,
     ) {
         let color = Self::c2d_color(color);
         // SAFETY: The only way to call these ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            C2D_DrawLine(x, y, color, x+w, y, color, thickness, 0.0);
-            C2D_DrawLine(x+w, y, color, x+w, y+h, color, thickness, 0.0);
-            C2D_DrawLine(x+w, y, color, x, y+h, color, thickness, 0.0);
-            C2D_DrawLine(x, y+h, color, x, y, color, thickness, 0.0);
+            C2D_DrawLine(x, y, color, x+w, y, color, thickness as f32, 0.0);
+            C2D_DrawLine(x+w, y, color, x+w, y+h, color, thickness as f32, 0.0);
+            C2D_DrawLine(x+w, y, color, x, y+h, color, thickness as f32, 0.0);
+            C2D_DrawLine(x, y+h, color, x, y, color, thickness as f32, 0.0);
         }
     }
 
@@ -221,16 +221,16 @@ impl<'a> RuggieDrawHandle<'a> {
         y1: f32,
         x2: f32,
         y2: f32,
-        thickness: f32,
+        thickness: u32,
         color: Color,
     ) {
         let color = Self::c2d_color(color);
         // SAFETY: The only way to call these ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness, 0.0);
-            C2D_DrawLine(x1, y1, color, x2, y2, color, thickness, 0.0);
-            C2D_DrawLine(x2, y2, color, x0, y0, color, thickness, 0.0);
+            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness as f32, 0.0);
+            C2D_DrawLine(x1, y1, color, x2, y2, color, thickness as f32, 0.0);
+            C2D_DrawLine(x2, y2, color, x0, y0, color, thickness as f32, 0.0);
         }
     }
 }
