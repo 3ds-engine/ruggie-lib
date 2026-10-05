@@ -208,7 +208,7 @@ impl<'a> RuggieDrawHandle<'a> {
         unsafe {
             C2D_DrawLine(x, y, color, x+w, y, color, thickness as f32, 0.0);
             C2D_DrawLine(x+w, y, color, x+w, y+h, color, thickness as f32, 0.0);
-            C2D_DrawLine(x+w, y, color, x, y+h, color, thickness as f32, 0.0);
+            C2D_DrawLine(x+w, y+h, color, x, y+h, color, thickness as f32, 0.0);
             C2D_DrawLine(x, y+h, color, x, y, color, thickness as f32, 0.0);
         }
     }
