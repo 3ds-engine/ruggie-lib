@@ -9,13 +9,12 @@ use color::Color;
 pub mod sprite;
 pub mod sprite_sheet;
 
-use test;
-
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
     current_screen: *const RuggieScreenTarget,
 }
 
+// --- Creation
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
         let current_screen : *const RuggieScreenTarget = &lib.top_left_screen;
@@ -36,7 +35,22 @@ impl<'a> RuggieDrawHandle<'a> {
             current_screen
         }
     }
+}
 
+// --- Private utilities
+impl<'a> RuggieDrawHandle<'a> {
+    fn c2d_color(color: Color) -> u32 {
+        unsafe {
+            // SAFETY: This function does simple arithmetic to get a u32 from the four u8 fields of
+            // a color. Calling it is always safe
+            C2D_Color32(color.r, color.g, color.b, color.a)
+        }
+    }
+}
+
+
+// --- Screen choosing
+impl<'a> RuggieDrawHandle<'a> {
     pub fn draw_top_left(&mut self) {
         let current_screen : *const RuggieScreenTarget = &self.lib.top_left_screen;
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
@@ -73,10 +87,11 @@ impl<'a> RuggieDrawHandle<'a> {
 
         self.current_screen = current_screen;
     }
+}
 
-
+// --- Screen clearing
+impl<'a> RuggieDrawHandle<'a> {
     pub fn clear_screen(&mut self, clear_color: Color) {
-
         unsafe {
             // SAFETY: The only way to call this ffi function is by creating an instance of
             // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
@@ -89,16 +104,49 @@ impl<'a> RuggieDrawHandle<'a> {
             );
         }
     }
+}
 
+// --- 2D Shapes
+impl<'a> RuggieDrawHandle<'a> {
     pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            let col = C2D_Color32(color.r, color.g, color.b, color.a);
-            C2D_DrawRectangle(x, y, 0.0, w, h, col, col, col, col);
+            let color = Self::c2d_color(color);
+            C2D_DrawRectSolid(x, y, 0.0, w, h, color);
         }
     }
 
+    pub fn draw_triangle(&self, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32, color: Color) {
+        // SAFETY: The only way to call this ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            let color = Self::c2d_color(color);
+            C2D_DrawTriangle(x0, y0, color, x1, y1, color, x2, y2, color, 0.0);
+        }
+    }
+
+    pub fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        // SAFETY: The only way to call this ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            let color = Self::c2d_color(color);
+            C2D_DrawCircleSolid(x, y, 0.0, r, color);
+        }
+    }
+
+    pub fn draw_ellipse(&self, x: f32, y: f32, rx: f32, ry: f32, color: Color) {
+        // SAFETY: The only way to call this ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            let color = Self::c2d_color(color);
+            C2D_DrawEllipseSolid(x-(rx/2.0), y-(ry/2.0), 0.0, rx*2.0, ry*2.0, color);
+        }
+    }
+}
+
+// --- 2D Sprites
+impl<'a> RuggieDrawHandle<'a> {
     pub fn draw_sprite(&self, sprite: &mut Sprite, x: f32, y: f32) {
         unsafe {
             // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
@@ -114,6 +162,7 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 }
 
+// --- Destruction
 impl Drop for RuggieDrawHandle<'_> {
     fn drop(&mut self) {
         // SAFETY: Calling ffi deinitialization is always save as long as the only way to obtain a
