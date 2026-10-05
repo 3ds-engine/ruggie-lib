@@ -14,6 +14,8 @@ use citro2d_sys::*;
 use citro3d_sys::*;
 use ctru::{prelude::*, services::romfs::RomFS};
 
+pub mod input;
+
 pub mod tests;
 pub struct RuggieLib {
     // Base tools
@@ -92,12 +94,6 @@ impl RuggieLib {
 
     pub fn wait_for_vblank(&self){
         self.gfx.wait_for_vblank();
-    }
-
-    pub fn get_3d_slider_state(&self) -> f32{
-        unsafe{
-            osGet3DSliderState()
-        }
     }
 
 }
