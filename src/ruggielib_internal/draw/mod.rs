@@ -17,7 +17,7 @@ pub struct RuggieDrawHandle<'a> {
 // --- Creation
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
-        let current_screen : *const RuggieScreenTarget = &lib.top_left_screen;
+        let current_screen: *const RuggieScreenTarget = &lib.top_left_screen;
 
         // SAFETY: Calling ffi initialization functions is safe as long as they are deinitialized in
         // the drop function of the object
@@ -30,9 +30,9 @@ impl<'a> RuggieDrawHandle<'a> {
             C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
         }
 
-        Self { 
-            lib, 
-            current_screen
+        Self {
+            lib,
+            current_screen,
         }
     }
 }
@@ -51,7 +51,7 @@ impl<'a> RuggieDrawHandle<'a> {
 // --- Screen functionality
 impl<'a> RuggieDrawHandle<'a> {
     pub fn draw_top_left(&mut self) {
-        let current_screen : *const RuggieScreenTarget = &self.lib.top_left_screen;
+        let current_screen: *const RuggieScreenTarget = &self.lib.top_left_screen;
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
@@ -63,7 +63,7 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 
     pub fn draw_top_right(&mut self) {
-        let current_screen : *const RuggieScreenTarget = &self.lib.top_right_screen;
+        let current_screen: *const RuggieScreenTarget = &self.lib.top_right_screen;
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
@@ -75,7 +75,7 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 
     pub fn draw_bottom(&mut self) {
-        let current_screen : *const RuggieScreenTarget = &self.lib.bottom_screen;
+        let current_screen: *const RuggieScreenTarget = &self.lib.bottom_screen;
 
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
         // never mutate after they are built, so using them while having a valid mutable
@@ -91,18 +91,14 @@ impl<'a> RuggieDrawHandle<'a> {
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe {
-            self.current_screen.as_ref_unchecked().width()
-        }
+        unsafe { self.current_screen.as_ref_unchecked().width() }
     }
 
     pub fn screen_height(&self) -> u32 {
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe {
-            self.current_screen.as_ref_unchecked().height()
-        }
+        unsafe { self.current_screen.as_ref_unchecked().height() }
     }
 }
 
@@ -123,41 +119,118 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 }
 
-// --- 2D Shapes
+// --- 2D Primitives
 impl<'a> RuggieDrawHandle<'a> {
-    pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
+    pub fn draw_line(&self, x0: f32, y0: f32, x1: f32, y1: f32, thickness: f32, color: Color) {
+        let color = Self::c2d_color(color);
+
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            let color = Self::c2d_color(color);
+            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness, 0.0);
+        }
+    }
+}
+
+// --- 2D Shapes
+impl<'a> RuggieDrawHandle<'a> {
+    pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
+        let color = Self::c2d_color(color);
+
+        // SAFETY: The only way to call this ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
             C2D_DrawRectSolid(x, y, 0.0, w, h, color);
         }
     }
 
-    pub fn draw_triangle(&self, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32, color: Color) {
+    pub fn draw_triangle(
+        &self,
+        x0: f32,
+        y0: f32,
+        x1: f32,
+        y1: f32,
+        x2: f32,
+        y2: f32,
+        color: Color,
+    ) {
+        let color = Self::c2d_color(color);
+
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            let color = Self::c2d_color(color);
             C2D_DrawTriangle(x0, y0, color, x1, y1, color, x2, y2, color, 0.0);
         }
     }
 
     pub fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        let color = Self::c2d_color(color);
+
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            let color = Self::c2d_color(color);
             C2D_DrawCircleSolid(x, y, 0.0, r, color);
         }
     }
 
     pub fn draw_ellipse(&self, x: f32, y: f32, rx: f32, ry: f32, color: Color) {
+        let color = Self::c2d_color(color);
+
         // SAFETY: The only way to call this ffi function is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
-            let color = Self::c2d_color(color);
-            C2D_DrawEllipseSolid(x-(rx/2.0), y-(ry/2.0), 0.0, rx*2.0, ry*2.0, color);
+            C2D_DrawEllipseSolid(
+                x - (rx / 2.0),
+                y - (ry / 2.0),
+                0.0,
+                rx * 2.0,
+                ry * 2.0,
+                color,
+            );
+        }
+    }
+}
+
+// --- 2D Outlines
+impl<'a> RuggieDrawHandle<'a> {
+    pub fn draw_rectangle_outline(
+        &self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        thickness: f32,
+        color: Color,
+    ) {
+        let color = Self::c2d_color(color);
+        // SAFETY: The only way to call these ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            C2D_DrawLine(x, y, color, x+w, y, color, thickness, 0.0);
+            C2D_DrawLine(x+w, y, color, x+w, y+h, color, thickness, 0.0);
+            C2D_DrawLine(x+w, y, color, x, y+h, color, thickness, 0.0);
+            C2D_DrawLine(x, y+h, color, x, y, color, thickness, 0.0);
+        }
+    }
+
+    pub fn draw_triangle_outline(
+        &self,
+        x0: f32,
+        y0: f32,
+        x1: f32,
+        y1: f32,
+        x2: f32,
+        y2: f32,
+        thickness: f32,
+        color: Color,
+    ) {
+        let color = Self::c2d_color(color);
+        // SAFETY: The only way to call these ffi function is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            C2D_DrawLine(x0, y0, color, x1, y1, color, thickness, 0.0);
+            C2D_DrawLine(x1, y1, color, x2, y2, color, thickness, 0.0);
+            C2D_DrawLine(x2, y2, color, x0, y0, color, thickness, 0.0);
         }
     }
 }
@@ -169,7 +242,6 @@ impl<'a> RuggieDrawHandle<'a> {
             // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
             // sprite themselves, otherwise it is impossible to create an invalid sprite
             let raw_sprite = sprite.get_raw_mut();
-
 
             // SAFETY: The only way to call these ffi functions is by creating an instance of
             // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
