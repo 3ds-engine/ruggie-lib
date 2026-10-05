@@ -48,8 +48,7 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 }
 
-
-// --- Screen choosing
+// --- Screen functionality
 impl<'a> RuggieDrawHandle<'a> {
     pub fn draw_top_left(&mut self) {
         let current_screen : *const RuggieScreenTarget = &self.lib.top_left_screen;
@@ -86,6 +85,24 @@ impl<'a> RuggieDrawHandle<'a> {
         }
 
         self.current_screen = current_screen;
+    }
+
+    pub fn screen_witdh(&self) -> u32 {
+        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
+        // never mutate after they are built, so using them while having a valid mutable
+        // reference to RuggieLib ensures the pointer is valid and can't be mutated
+        unsafe {
+            self.current_screen.as_ref_unchecked().width()
+        }
+    }
+
+    pub fn screen_height(&self) -> u32 {
+        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
+        // never mutate after they are built, so using them while having a valid mutable
+        // reference to RuggieLib ensures the pointer is valid and can't be mutated
+        unsafe {
+            self.current_screen.as_ref_unchecked().height()
+        }
     }
 }
 
