@@ -1,10 +1,12 @@
-use citro2d_sys::*;
 use std::ffi::CString;
+
+use citro2d_sys::{C2D_SpriteFromSheet, C2D_SpriteSheet, C2D_SpriteSheetLoad};
 
 use crate::draw::sprite::Sprite;
 pub struct SpriteSheet(C2D_SpriteSheet);
 
 impl SpriteSheet {
+    #[must_use]
     pub fn new(filename: &str) -> Option<Self> {
         let filename_cstr = CString::new(filename).ok()?;
         unsafe {
@@ -18,6 +20,7 @@ impl SpriteSheet {
         }
     }
 
+    #[must_use]
     pub fn get_sprite(&self, index: usize) -> Sprite {
         unsafe {
             let mut sprite = Sprite::default();

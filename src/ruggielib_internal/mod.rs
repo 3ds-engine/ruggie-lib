@@ -1,5 +1,3 @@
-pub mod deprecated;
-
 pub mod errors;
 use errors::RuggieLibCreationError;
 
@@ -9,8 +7,8 @@ use draw::RuggieDrawHandle;
 pub mod screen;
 use screen::RuggieScreenTarget;
 
-use citro2d_sys::*;
-use citro3d_sys::*;
+use citro3d_sys::{C3D_Init, C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini};
+use citro2d_sys::{C2D_Init, C2D_DEFAULT_MAX_OBJECTS, C2D_Prepare, C2D_Fini};
 use ctru::{prelude::*, services::romfs::RomFS};
 
 pub mod input;
@@ -38,8 +36,8 @@ impl RuggieLib {
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
         
         unsafe{
-            citro3d_sys::C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
-            citro2d_sys::C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
+            C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
+            C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
             C2D_Prepare();
         }
 

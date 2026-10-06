@@ -1,13 +1,14 @@
 use std::ptr::{null, null_mut};
 
-use citro2d_sys::*;
+use citro2d_sys::{C2D_DrawParams, C2D_DrawParams__bindgen_ty_1, C2D_DrawParams__bindgen_ty_2, C2D_Image, C2D_Sprite};
 
 pub struct Sprite(C2D_Sprite);
 
 impl Sprite {
     // SAFETY: Just creating a sprite with null fields is safe, it is trying to use the sprite
     // that will be unsafe
-    pub unsafe fn default() -> Self {
+    #[must_use]
+    pub const unsafe fn default() -> Self {
         Self(C2D_Sprite {
             image: C2D_Image {
                 tex: null_mut(),
@@ -28,12 +29,13 @@ impl Sprite {
     }
 
     // SAFETY: Accessing the internal pointer is safe as long as it doesn't mutate
-    pub unsafe fn get_raw(&self) -> &C2D_Sprite {
+    #[must_use]
+    pub const unsafe fn get_raw(&self) -> &C2D_Sprite {
         &self.0
     }
 
     // SAFETY: Accessing the internal pointer is safe as long as it doesn't mutate
-    pub unsafe fn get_raw_mut(&mut self) -> &mut C2D_Sprite {
+    pub const unsafe fn get_raw_mut(&mut self) -> &mut C2D_Sprite {
         &mut self.0
     }
 }
