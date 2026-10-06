@@ -1,4 +1,4 @@
-use ctru::services::hid::KeyPad;
+use ctru::services::hid::{Acceleration, AngularRate, KeyPad};
 use ctru_sys::osGet3DSliderState;
 
 use crate::{RuggieLib, input::errors::InputError};
@@ -71,22 +71,25 @@ impl RuggieLib{
     }
 
     pub fn set_accelerometer(&mut self, val: bool) -> Result<(), InputError>{
-        self.hid.set_accelerometer(val).map_err(|_| {
-            InputError::AccelerometerSet
-        })
+        self.hid.set_accelerometer(val).map_err(|_| InputError::AccelerometerSet)
     }
 
     pub fn set_gyroscope(&mut self, val: bool) -> Result<(), InputError>{
-        self.hid.set_gyroscope(val).map_err(|_| {
-            InputError::GyroscopeSet
-        })
+        self.hid.set_gyroscope(val).map_err(|_| InputError::GyroscopeSet)
     }
 
-    /* 
-    pub fn get_accelerometer_vector(&self){
+    
+    pub fn get_accelerometer_vector(&self) -> Result<AccelerometerInfo, InputError>{
         self.hid.accelerometer_vector()
+            .map(AccelerometerInfo::from)
+            .map_err(|_| InputError::AccelerometerRead)
     }
-    */
+    
+    pub fn get_gyroscope_info(&self) -> Result<GyroscopeInfo, InputError>{
+        self.hid.gyroscope_rate()
+            .map(GyroscopeInfo::from)
+            .map_err(|_| InputError::GyroscopeRead)
+    }
     
 }
 
@@ -99,4 +102,42 @@ fn normalize_i16(value: i16) -> f32{
     };
 
     normalized
+}
+
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct AccelerometerInfo {
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
+}
+
+impl From<Acceleration> for AccelerometerInfo{
+    fn from(value: Acceleration) -> Self {
+        let raw_info = <(i16, i16, i16)>::from(value);
+
+        AccelerometerInfo { 
+            x: raw_info.0, 
+            y: raw_info.1, 
+            z: raw_info.2 
+        }
+    }
+}
+
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct GyroscopeInfo {
+    pub roll: i16,
+    pub pitch: i16,
+    pub yaw: i16,
+}
+
+impl From<AngularRate> for GyroscopeInfo{
+    fn from(value: AngularRate) -> Self {
+        let raw_info = <(i16, i16, i16)>::from(value);
+
+        GyroscopeInfo { 
+            roll: raw_info.0, 
+            pitch: raw_info.1, 
+            yaw: raw_info.2 
+        }
+    }
 }
