@@ -7,9 +7,11 @@ use draw::RuggieDrawHandle;
 pub mod screen;
 use screen::RuggieScreenTarget;
 
-use citro3d_sys::{C3D_Init, C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini};
-use citro2d_sys::{C2D_Init, C2D_DEFAULT_MAX_OBJECTS, C2D_Prepare, C2D_Fini};
+use citro2d_sys::{C2D_DEFAULT_MAX_OBJECTS, C2D_Fini, C2D_Init, C2D_Prepare};
+use citro3d_sys::{C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini, C3D_Init};
 use ctru::{prelude::*, services::romfs::RomFS};
+
+use crate::errors::FeatureEnableError;
 
 pub mod input;
 
@@ -21,9 +23,9 @@ pub struct RuggieLib {
     gfx: Gfx,
 
     // Screens
-    pub top_left_screen : RuggieScreenTarget,
-    pub top_right_screen : RuggieScreenTarget,
-    pub bottom_screen : RuggieScreenTarget,
+    pub top_left_screen: RuggieScreenTarget,
+    pub top_right_screen: RuggieScreenTarget,
+    pub bottom_screen: RuggieScreenTarget,
 
     // Features
     romfs: Option<RomFS>,
@@ -34,8 +36,8 @@ impl RuggieLib {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
-        
-        unsafe{
+
+        unsafe {
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
             C2D_Init(C2D_DEFAULT_MAX_OBJECTS as usize);
             C2D_Prepare();
@@ -60,39 +62,30 @@ impl RuggieLib {
         RuggieDrawHandle::new(self)
     }
 
-    pub fn with_romfs(mut self) -> ctru::Result<Self> {
-        let romfs = RomFS::new()?;
-        self.romfs = Some(romfs);
-
-        Ok(self)
-    }
-
-    pub fn with(mut self, features: impl IntoIterator<Item=Feature>) -> ctru::Result<Self> {
+    pub fn with(
+        mut self,
+        features: impl IntoIterator<Item = Feature>,
+    ) -> Result<Self, FeatureEnableError> {
         for feature in features.into_iter() {
             match feature {
                 Feature::RomFS => {
-                    let romfs = RomFS::new()?;
+                    let romfs = RomFS::new().map_err(|_| FeatureEnableError::FailedRomFS)?;
                     self.romfs = Some(romfs)
-                },
-                Feature::Stereoscopic3D =>{
-                    unsafe{
-                        ctru_sys::gfxSet3D(true);
-                    }
                 }
+                Feature::Stereoscopic3D => unsafe { ctru_sys::gfxSet3D(true) },
             }
         }
 
         Ok(self)
     }
 
-    pub fn is_running(&self) -> bool{
+    pub fn is_running(&self) -> bool {
         self.apt.main_loop()
     }
 
-    pub fn wait_for_vblank(&self){
+    pub fn wait_for_vblank(&self) {
         self.gfx.wait_for_vblank();
     }
-
 }
 
 impl Drop for RuggieLib {
@@ -106,5 +99,5 @@ impl Drop for RuggieLib {
 
 pub enum Feature {
     RomFS,
-    Stereoscopic3D
+    Stereoscopic3D,
 }
