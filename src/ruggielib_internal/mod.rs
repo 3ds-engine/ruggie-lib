@@ -1,7 +1,6 @@
 pub mod deprecated;
 
 pub mod errors;
-use ctru_sys::osGet3DSliderState;
 use errors::RuggieLibCreationError;
 
 pub mod draw;

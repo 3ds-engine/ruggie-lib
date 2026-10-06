@@ -1,7 +1,9 @@
 use ctru::services::hid::KeyPad;
 use ctru_sys::osGet3DSliderState;
 
-use crate::RuggieLib;
+use crate::{RuggieLib, input::errors::InputError};
+
+pub mod errors;
 
 impl RuggieLib{
 
@@ -61,6 +63,30 @@ impl RuggieLib{
         (c_stick_x, c_stick_y)
     }
 
+    pub fn touch_pad_position(&self) -> Option<(u16,u16)>{
+        if self.hid.keys_held().contains(KeyPad::TOUCH){
+            return Some(self.hid.touch_position())
+        }
+        None
+    }
+
+    pub fn set_accelerometer(&mut self, val: bool) -> Result<(), InputError>{
+        self.hid.set_accelerometer(val).map_err(|_| {
+            InputError::AccelerometerSet
+        })
+    }
+
+    pub fn set_gyroscope(&mut self, val: bool) -> Result<(), InputError>{
+        self.hid.set_gyroscope(val).map_err(|_| {
+            InputError::GyroscopeSet
+        })
+    }
+
+    /* 
+    pub fn get_accelerometer_vector(&self){
+        self.hid.accelerometer_vector()
+    }
+    */
     
 }
 
