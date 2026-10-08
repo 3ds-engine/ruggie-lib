@@ -73,11 +73,17 @@ impl RuggieScreenTarget {
     }
 
     #[must_use]
-    pub const fn get_screen(&self) -> &mut C3D_RenderTarget {
+    pub const unsafe fn get_screen_raw_mut(&self) -> *mut C3D_RenderTarget {
+        // Accesing the screen as a raw pointer can deref it and therefore it is not safe
+        self.screen
+    }
+
+    #[must_use]
+    pub const fn get_screen(&self) -> &C3D_RenderTarget {
         // SAFETY: Converting a mutable pointer that must be valid (since the only way to access a
-        // RuggieScreenTarget is by creating said pointer) to a mutable reference is always safe
+        // RuggieScreenTarget is by creating said pointer) to a non mutable reference is always safe
         unsafe {
-            self.screen.as_mut_unchecked()
+            self.screen.as_ref_unchecked()
         }
     }
 }

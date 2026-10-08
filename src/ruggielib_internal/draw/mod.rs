@@ -30,7 +30,7 @@ impl<'a> RuggieDrawHandle<'a> {
             // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
             // never mutate after they are built, so using them while having a valid mutable
             // reference to RuggieLib ensures the pointer is valid and can't be mutated
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
         }
 
         Self {
@@ -59,7 +59,7 @@ impl RuggieDrawHandle<'_> {
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
         unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
         }
 
         self.current_screen = current_screen;
@@ -71,7 +71,7 @@ impl RuggieDrawHandle<'_> {
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
         unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
         }
 
         self.current_screen = current_screen;
@@ -84,7 +84,7 @@ impl RuggieDrawHandle<'_> {
         // never mutate after they are built, so using them while having a valid mutable
         // reference to RuggieLib ensures the pointer is valid and can't be mutated
         unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen());
+            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
         }
 
         self.current_screen = current_screen;
@@ -122,7 +122,7 @@ impl RuggieDrawHandle<'_> {
                 // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
                 // never mutate after they are built, so using them while having a valid mutable
                 // reference to RuggieLib ensures the pointer is valid and can't be mutated
-                self.current_screen.as_ref_unchecked().get_screen(),
+                self.current_screen.as_ref_unchecked().get_screen_raw_mut(),
                 C2D_Color32(clear_color.r, clear_color.g, clear_color.b, clear_color.a),
             );
         }

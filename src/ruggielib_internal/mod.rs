@@ -47,7 +47,7 @@ impl RuggieLib {
         let top_right_screen = RuggieScreenTarget::new_top_right();
         let bottom_screen = RuggieScreenTarget::new_bottom();
 
-        Ok(RuggieLib {
+        Ok(Self {
             apt,
             hid,
             gfx,
@@ -62,15 +62,17 @@ impl RuggieLib {
         RuggieDrawHandle::new(self)
     }
 
+    /// #returns 
+    /// #errors if ...
     pub fn with(
         mut self,
         features: impl IntoIterator<Item = Feature>,
     ) -> Result<Self, FeatureEnableError> {
-        for feature in features.into_iter() {
+        for feature in features {
             match feature {
                 Feature::RomFS => {
                     let romfs = RomFS::new().map_err(|_| FeatureEnableError::FailedRomFS)?;
-                    self.romfs = Some(romfs)
+                    self.romfs = Some(romfs);
                 }
                 Feature::Stereoscopic3D => unsafe { ctru_sys::gfxSet3D(true) },
             }

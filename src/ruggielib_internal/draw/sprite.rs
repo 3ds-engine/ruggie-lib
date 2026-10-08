@@ -1,6 +1,6 @@
 use std::ptr::{null, null_mut};
 
-use citro2d_sys::{C2D_DrawParams, C2D_DrawParams__bindgen_ty_1, C2D_DrawParams__bindgen_ty_2, C2D_Image, C2D_Sprite};
+use citro2d_sys::{C2D_DrawParams, C2D_DrawParams__bindgen_ty_1, C2D_DrawParams__bindgen_ty_2, C2D_Image, C2D_Sprite, C2D_SpriteRotate, C2D_SpriteRotateDegrees};
 
 pub struct Sprite(C2D_Sprite);
 
@@ -37,5 +37,17 @@ impl Sprite {
     // SAFETY: Accessing the internal pointer is safe as long as it doesn't mutate
     pub const unsafe fn get_raw_mut(&mut self) -> &mut C2D_Sprite {
         &mut self.0
+    }
+
+    pub fn rotate(&mut self, radians: f32) {
+        unsafe {
+            C2D_SpriteRotate(&mut self.0, radians);
+        }
+    }
+
+    pub fn rotate_degrees(&mut self, degrees: f32) {
+        unsafe {
+            C2D_SpriteRotateDegrees(&mut self.0, degrees);
+        }
     }
 }
