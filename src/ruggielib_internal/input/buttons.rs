@@ -1,5 +1,6 @@
 use ctru::services::hid::KeyPad;
 
+///Button codes
 pub enum Button{
     /// A button.
     A,
