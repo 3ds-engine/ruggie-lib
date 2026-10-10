@@ -249,8 +249,8 @@ impl RuggieDrawHandle<'_> {
         x: f32,
         y: f32,
         r: f32,
-        thickness: u16,
         sides: u32,
+        thickness: u16,
         color: Color,
     ) {
         let color = Self::c2d_color(color);
@@ -267,6 +267,36 @@ impl RuggieDrawHandle<'_> {
                 let y0 = y + r * a0.sin();
                 let x1 = x + r * a1.cos();
                 let y1 = y + r * a1.sin();
+
+                C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
+            }
+        }
+    }
+
+    pub fn draw_ellipse_outline(
+        &self,
+        x: f32,
+        y: f32,
+        rx: f32,
+        ry: f32,
+        sides: u32,
+        thickness: u16,
+        color: Color,
+    ) {
+        let color = Self::c2d_color(color);
+        let angle_step = 2.0 * std::f32::consts::PI / sides as f32;
+
+        // SAFETY: The only way to call these ffi functions is by creating an instance of
+        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        unsafe {
+            for i in 0..sides {
+                let a0 = angle_step * i as f32;
+                let a1 = angle_step * (i + 1) as f32;
+
+                let x0 = x + rx * a0.cos();
+                let y0 = y + ry * a0.sin();
+                let x1 = x + rx * a1.cos();
+                let y1 = y + ry * a1.sin();
 
                 C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
             }
