@@ -1,5 +1,7 @@
 use ctru_sys::{PrintConsole, consoleClear, consoleInit, consoleSelect, gfxScreen_t};
 
+use crate::RuggieLib;
+
 pub struct RuggieConsole(Box<PrintConsole>);
 
 impl RuggieConsole {
@@ -13,12 +15,14 @@ impl RuggieConsole {
 
         Self(console)
     }
+}
 
-    pub fn select(&mut self) {
-        unsafe { consoleSelect(self.0.as_mut()) };
-    }
-
-    pub fn clear(&mut self) {
-        unsafe { consoleClear() };
+impl RuggieLib {
+    pub fn clear_console(&mut self) {
+        if self.console.is_some() {
+            unsafe {
+                consoleClear();
+            }
+        }
     }
 }
