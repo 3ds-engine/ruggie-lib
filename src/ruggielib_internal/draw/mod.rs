@@ -293,10 +293,10 @@ impl RuggieDrawHandle<'_> {
                 let a0 = angle_step * i as f32;
                 let a1 = angle_step * (i + 1) as f32;
 
-                let x0 = x + rx * a0.cos();
-                let y0 = y + ry * a0.sin();
-                let x1 = x + rx * a1.cos();
-                let y1 = y + ry * a1.sin();
+                let x0 = x + rx / 2.0 + rx * a0.cos();
+                let y0 = y + ry / 2.0 + ry * a0.sin();
+                let x1 = x + rx / 2.0 + rx * a1.cos();
+                let y1 = y + ry / 2.0 + ry * a1.sin();
 
                 C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
             }
