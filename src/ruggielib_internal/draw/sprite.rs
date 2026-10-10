@@ -49,15 +49,11 @@ impl Sprite {
         }
     }
 
-    pub fn set_size(&mut self, width: f32, height: f32) {
+    pub fn set_scale(&mut self, width: f32, height: f32) {
+        // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
+        // thing to happen in a program
         unsafe {
             C2D_SpriteSetScale(&mut self.0, width, height);
-        }
-    }
-
-    pub fn set_relative_size(&mut self, width: f32, height: f32) {
-        unsafe {
-            C2D_SpriteScale(&mut self.0, width, height);
         }
     }
 
