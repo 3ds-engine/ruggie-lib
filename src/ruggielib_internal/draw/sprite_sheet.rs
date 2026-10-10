@@ -1,9 +1,14 @@
 use std::ffi::CString;
 
-use citro2d_sys::{C2D_SpriteFromSheet, C2D_SpriteSheet, C2D_SpriteSheetLoad};
+use citro2d_sys::{
+    C2D_SpriteFromSheet, C2D_SpriteSheet, C2D_SpriteSheetCount, C2D_SpriteSheetLoad,
+};
 
 use crate::draw::sprite::Sprite;
-pub struct SpriteSheet(C2D_SpriteSheet);
+pub struct SpriteSheet {
+    sprite_sheet: C2D_SpriteSheet,
+    size: usize,
+}
 
 impl SpriteSheet {
     #[must_use]
@@ -15,18 +20,25 @@ impl SpriteSheet {
             if sprite_sheet.is_null() {
                 None
             } else {
-                Some(Self(sprite_sheet))
+                Some(Self {
+                    sprite_sheet,
+                    size: C2D_SpriteSheetCount(sprite_sheet),
+                })
             }
         }
     }
 
     #[must_use]
-    pub fn get_sprite(&self, index: usize) -> Sprite {
+    pub fn get_sprite(&self, index: usize) -> Option<Sprite> {
+        if index >= self.size {
+            return None;
+        }
+
         unsafe {
             let mut sprite = Sprite::default();
-            C2D_SpriteFromSheet(sprite.get_raw_mut(), self.0, index);
+            C2D_SpriteFromSheet(sprite.get_raw_mut(), self.sprite_sheet, index);
 
-            sprite
+            Some(sprite)
         }
     }
 }
