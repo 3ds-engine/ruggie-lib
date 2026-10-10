@@ -1,8 +1,7 @@
 use std::ptr::{null, null_mut};
 
 use citro2d_sys::{
-    C2D_DrawParams, C2D_DrawParams__bindgen_ty_1, C2D_DrawParams__bindgen_ty_2, C2D_Image,
-    C2D_Sprite, C2D_SpriteRotate, C2D_SpriteRotateDegrees,
+    C2D_DrawParams, C2D_DrawParams__bindgen_ty_1, C2D_DrawParams__bindgen_ty_2, C2D_Image, C2D_Sprite, C2D_SpriteRotate, C2D_SpriteRotateDegrees, C2D_SpriteSetCenter,
 };
 
 pub struct Sprite(C2D_Sprite);
@@ -51,6 +50,12 @@ impl Sprite {
     pub fn rotate_degrees(&mut self, degrees: f32) {
         unsafe {
             C2D_SpriteRotateDegrees(&mut self.0, degrees);
+        }
+    }
+
+    pub fn set_pivot(&mut self, x: f32, y: f32) {
+        unsafe {
+            C2D_SpriteSetCenter(&mut self.0, x, y);
         }
     }
 }
