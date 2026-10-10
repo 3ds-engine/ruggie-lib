@@ -7,15 +7,20 @@ use draw::RuggieDrawHandle;
 pub mod screen;
 use screen::RuggieScreenTarget;
 
+pub mod features;
+use crate::features::console::RuggieConsole;
+
+pub mod input;
+pub mod tests;
+
 use citro2d_sys::{C2D_DEFAULT_MAX_OBJECTS, C2D_Fini, C2D_Init, C2D_Prepare};
 use citro3d_sys::{C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini, C3D_Init};
 use ctru::{prelude::*, services::romfs::RomFS};
+use ctru_sys::{GFX_BOTTOM, GFX_TOP};
 
-use crate::errors::FeatureEnableError;
+pub const TOP_SCREEN_INDEX : u8 = GFX_TOP;
+pub const BOTTOM_SCREEN_INDEX : u8 = GFX_BOTTOM;
 
-pub mod input;
-
-pub mod tests;
 pub struct RuggieLib {
     // Base tools
     apt: Apt,
@@ -29,6 +34,7 @@ pub struct RuggieLib {
 
     // Features
     romfs: Option<RomFS>,
+    console: Option<RuggieConsole>,
 }
 
 impl RuggieLib {
@@ -55,30 +61,12 @@ impl RuggieLib {
             top_right_screen,
             bottom_screen,
             romfs: None,
+            console: None,
         })
     }
 
     pub fn start_drawing(&mut self) -> RuggieDrawHandle<'_> {
         RuggieDrawHandle::new(self)
-    }
-
-    /// #returns 
-    /// #errors if ...
-    pub fn with(
-        mut self,
-        features: impl IntoIterator<Item = Feature>,
-    ) -> Result<Self, FeatureEnableError> {
-        for feature in features {
-            match feature {
-                Feature::RomFS => {
-                    let romfs = RomFS::new().map_err(|_| FeatureEnableError::FailedRomFS)?;
-                    self.romfs = Some(romfs);
-                }
-                Feature::Stereoscopic3D => unsafe { ctru_sys::gfxSet3D(true) },
-            }
-        }
-
-        Ok(self)
     }
 
     pub fn is_running(&self) -> bool {
@@ -97,9 +85,4 @@ impl Drop for RuggieLib {
             C3D_Fini();
         }
     }
-}
-
-pub enum Feature {
-    RomFS,
-    Stereoscopic3D,
 }

@@ -39,7 +39,7 @@ impl SpriteSheet {
         // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
         // thing to happen in a program
         unsafe {
-            let mut sprite = Sprite::default();
+            let mut sprite = Sprite::zeroed();
             C2D_SpriteFromSheet(sprite.get_raw_mut(), self.sprite_sheet, index);
 
             Some(sprite)
