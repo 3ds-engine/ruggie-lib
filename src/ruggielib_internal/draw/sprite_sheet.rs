@@ -1,7 +1,7 @@
 use std::ffi::CString;
 
 use citro2d_sys::{
-    C2D_SpriteFromSheet, C2D_SpriteSheet, C2D_SpriteSheetCount, C2D_SpriteSheetLoad,
+    C2D_SpriteFromSheet, C2D_SpriteSheet, C2D_SpriteSheetCount, C2D_SpriteSheetFree, C2D_SpriteSheetLoad,
 };
 
 use crate::draw::sprite::Sprite;
@@ -14,6 +14,8 @@ impl SpriteSheet {
     #[must_use]
     pub fn new(filename: &str) -> Option<Self> {
         let filename_cstr = CString::new(filename).ok()?;
+        // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
+        // thing to happen in a program
         unsafe {
             let sprite_sheet = C2D_SpriteSheetLoad(filename_cstr.as_ptr());
 
@@ -34,11 +36,21 @@ impl SpriteSheet {
             return None;
         }
 
+        // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
+        // thing to happen in a program
         unsafe {
             let mut sprite = Sprite::default();
             C2D_SpriteFromSheet(sprite.get_raw_mut(), self.sprite_sheet, index);
 
             Some(sprite)
+        }
+    }
+}
+
+impl Drop for SpriteSheet {
+    fn drop(&mut self) {
+        unsafe {
+            C2D_SpriteSheetFree(self.sprite_sheet);
         }
     }
 }
