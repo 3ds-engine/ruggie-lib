@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+/// Represents the ways that RuggieLib creation and initialization might fail
 #[derive(Error, Debug)]
 pub enum RuggieLibCreationError {
     #[error("Could not create ruggielib: Failed to create Apt")]
@@ -10,10 +11,4 @@ pub enum RuggieLibCreationError {
 
     #[error("Could not create ruggielib: Failed to create Gfx")]
     FailedGfx,
-}
-
-#[derive(Error, Debug)]
-pub enum FeatureEnableError {
-    #[error("Could not enable ruggielib features: Failed to create RomFS")]
-    FailedRomFS,
 }

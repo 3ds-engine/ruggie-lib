@@ -12,12 +12,38 @@ use color::Color;
 pub mod sprite;
 pub mod sprite_sheet;
 
+/// The API for 2D rendering in the 3DS
+///
+/// It holds functionality to draw 2D shapes, 2D outlines, 2D sprites, 2D primitives and clearing
+/// the screen.
+///
+/// This struct operates like a state machine. When it's created it is rendering on the top-left
+/// screen. You can use functions named `draw_<screen>()` to switch the target screen for rendering
+///
+/// # Example
+/// ```
+/// let rl = RuggieLib::new().unwrap
+/// while(rl.is_running()) {
+///     rl.wait_for_vblank();
+///     let render = rl.start_drawing();
+///
+///     // Top left screen
+///     rl.clear_screen(Color::white());
+///     rl.draw_circle(100.0, 100.0, 50.0, Color::red()); 
+///
+///     // Bottom Screen
+///     rl.draw_bottom();
+///     rl.clear_screen(Color::white())
+/// }
+/// ```
 pub struct RuggieDrawHandle<'a> {
     lib: &'a mut RuggieLib,
     current_screen: *const RuggieScreenTarget,
 }
 
-// --- Creation
+/// Creation of the Handle
+///
+/// This is meant to be accessed from RuggieLib's `start_drawing()` method
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
         let current_screen = &raw const lib.top_left_screen;
@@ -40,7 +66,8 @@ impl<'a> RuggieDrawHandle<'a> {
     }
 }
 
-// --- Private utilities
+/// Private utilities
+#[doc(hidden)]
 impl RuggieDrawHandle<'_> {
     fn c2d_color(color: Color) -> u32 {
         unsafe {
@@ -51,8 +78,9 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- Screen functionality
+/// Screen switching and information
 impl RuggieDrawHandle<'_> {
+    /// Switches the target screen for all render functionality to be the top left screen
     pub fn draw_top_left(&mut self) {
         let current_screen = &raw const self.lib.top_left_screen;
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
@@ -65,6 +93,7 @@ impl RuggieDrawHandle<'_> {
         self.current_screen = current_screen;
     }
 
+    /// Switches the target screen for all render functionality to be the top right screen
     pub fn draw_top_right(&mut self) {
         let current_screen = &raw const self.lib.top_right_screen;
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
@@ -77,6 +106,7 @@ impl RuggieDrawHandle<'_> {
         self.current_screen = current_screen;
     }
 
+    /// Switches the target screen for all render functionality to be the bottom screen
     pub fn draw_bottom(&mut self) {
         let current_screen = &raw const self.lib.bottom_screen;
 
@@ -90,6 +120,7 @@ impl RuggieDrawHandle<'_> {
         self.current_screen = current_screen;
     }
 
+    /// Gets the width of the target screen
     #[must_use]
     pub const fn screen_witdh(&self) -> u32 {
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
@@ -98,6 +129,7 @@ impl RuggieDrawHandle<'_> {
         unsafe { self.current_screen.as_ref_unchecked().width() }
     }
 
+    /// Gets the height of the target screen
     #[must_use]
     pub const fn screen_height(&self) -> u32 {
         // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
@@ -106,14 +138,24 @@ impl RuggieDrawHandle<'_> {
         unsafe { self.current_screen.as_ref_unchecked().height() }
     }
 
+    /// Gets the dimensions of the target screen in a (width, height) tuple
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let (witdh, height) = render.screen_dimensions();
+    /// assert_eq!(width, render.screen_width());
+    /// assert_eq!(height, render.screen_height());
+    /// ```
     #[must_use]
     pub const fn screen_dimensions(&self) -> (u32, u32) {
         (self.screen_witdh(), self.screen_height())
     }
 }
 
-// --- Screen clearing
+// Screen clearing
 impl RuggieDrawHandle<'_> {
+    /// Clears the target screen with the given render color
     pub fn clear_screen(&mut self, clear_color: Color) {
         unsafe {
             // SAFETY: The only way to call this ffi function is by creating an instance of
@@ -129,8 +171,10 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- 2D Primitives
+/// 2D Primitives
 impl RuggieDrawHandle<'_> {
+    /// Draws a line from point (x0, y0) to point (x1, y1), with a thickness of `thickness` pixels
+    /// and a given color
     pub fn draw_line(&self, x0: f32, y0: f32, x1: f32, y1: f32, thickness: u16, color: Color) {
         let color = Self::c2d_color(color);
 
@@ -142,8 +186,11 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- 2D Shapes
+// 2D Shapes
 impl RuggieDrawHandle<'_> {
+    /// Draws a rectangle.
+    ///
+    /// Its top-left corner will be situated at (x, y)
     pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         let color = Self::c2d_color(color);
 
@@ -154,6 +201,10 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws a triangle. 
+    ///
+    /// The three vertices of the triangle will be situated 
+    /// at (x0, y0), (x1, y1) and (x2, y2).
     pub fn draw_triangle(
         &self,
         x0: f32,
@@ -173,6 +224,9 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws a circle.
+    ///
+    /// Its center will be situated at (x, y)
     pub fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
         let color = Self::c2d_color(color);
 
@@ -183,6 +237,10 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws an ellipse
+    ///
+    /// Its center will be situated at (x, y), rx will be it's x-axis radius and ry will be its
+    /// y-axis radius
     pub fn draw_ellipse(&self, x: f32, y: f32, rx: f32, ry: f32, color: Color) {
         let color = Self::c2d_color(color);
 
@@ -201,8 +259,11 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- 2D Outlines
+/// 2D Outlines
 impl RuggieDrawHandle<'_> {
+    /// Draws the outline of a rectangle
+    ///
+    /// The logistics of its position are the same that its full shape analog
     pub fn draw_rectangle_outline(
         &self,
         x: f32,
@@ -223,6 +284,9 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws the outline of a triangle
+    ///
+    /// The logistics of its position are the same that its full shape analog
     pub fn draw_triangle_outline(
         &self,
         x0: f32,
@@ -244,6 +308,9 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws the outline of a circle
+    ///
+    /// The logistics of its position are the same that its full shape analog
     pub fn draw_circle_outline(
         &self,
         x: f32,
@@ -273,6 +340,9 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
+    /// Draws the outline of an ellipse
+    ///
+    /// The logistics of its position are the same that its full shape analog
     pub fn draw_ellipse_outline(
         &self,
         x: f32,
@@ -304,8 +374,12 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- 2D Sprites
+/// 2D Sprites
 impl RuggieDrawHandle<'_> {
+    /// Draws a sprite
+    ///
+    /// The position of its pivot will be located at (x, y). You can change the pivot of a sprite
+    /// using `set_pivot()`
     pub fn draw_sprite(&self, sprite: &mut Sprite, x: f32, y: f32) {
         unsafe {
             // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
@@ -320,7 +394,9 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// --- Destruction
+/// Destruction
+///
+/// This ensures that the resources acquired by RuggieDrawHandle are freed when it is dropped
 impl Drop for RuggieDrawHandle<'_> {
     fn drop(&mut self) {
         // SAFETY: Calling ffi deinitialization is always save as long as the only way to obtain a

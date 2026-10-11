@@ -1,6 +1,8 @@
 pub mod console;
+pub mod errors;
+use errors::FeatureEnableError;
 
-use crate::{features::console::RuggieConsole, ruggielib_internal::{RuggieLib, errors::FeatureEnableError}};
+use crate::{features::console::RuggieConsole, ruggielib_internal::RuggieLib};
 use ctru::services::romfs::RomFS;
 
 pub enum Feature {
