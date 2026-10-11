@@ -2,9 +2,10 @@ use ctru_sys::{PrintConsole, consoleClear, consoleInit, consoleSelect, gfxScreen
 
 use crate::RuggieLib;
 
-pub struct RuggieConsole(Box<PrintConsole>);
+pub struct RuggieConsole(/*Box<PrintConsole>*/);
 
 impl RuggieConsole {
+    #[must_use]
     pub fn new(screen: gfxScreen_t) -> Self {
         let mut console: Box<PrintConsole> = Box::new(unsafe { std::mem::zeroed() });
 
@@ -13,7 +14,7 @@ impl RuggieConsole {
             consoleSelect(console.as_mut());
         }
 
-        Self(console)
+        Self(/*console*/)
     }
 }
 

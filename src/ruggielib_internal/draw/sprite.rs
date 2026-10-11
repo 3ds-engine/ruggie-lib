@@ -1,5 +1,5 @@
 use citro2d_sys::{
-    C2D_Sprite, C2D_SpriteRotate, C2D_SpriteRotateDegrees, C2D_SpriteScale, C2D_SpriteSetCenter, C2D_SpriteSetScale,
+    C2D_Sprite, C2D_SpriteRotate, C2D_SpriteRotateDegrees, C2D_SpriteSetCenter, C2D_SpriteSetScale,
 };
 
 pub struct Sprite(C2D_Sprite);
@@ -29,7 +29,7 @@ impl Sprite {
         // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
         // thing to happen in a program
         unsafe {
-            C2D_SpriteRotate(&mut self.0, radians);
+            C2D_SpriteRotate(&raw mut self.0, radians);
         }
     }
 
@@ -37,7 +37,7 @@ impl Sprite {
         // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
         // thing to happen in a program
         unsafe {
-            C2D_SpriteRotateDegrees(&mut self.0, degrees);
+            C2D_SpriteRotateDegrees(&raw mut self.0, degrees);
         }
     }
 
@@ -45,7 +45,7 @@ impl Sprite {
         // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
         // thing to happen in a program
         unsafe {
-            C2D_SpriteSetCenter(&mut self.0, x, y);
+            C2D_SpriteSetCenter(&raw mut self.0, x, y);
         }
     }
 
@@ -53,19 +53,22 @@ impl Sprite {
         // SAFETY: This is only unsafe if ruggielib has not been created, and it should be the first
         // thing to happen in a program
         unsafe {
-            C2D_SpriteSetScale(&mut self.0, width, height);
+            C2D_SpriteSetScale(&raw mut self.0, width, height);
         }
     }
 
-    pub fn get_size(&self) -> (f32, f32) {
+    #[must_use]
+    pub const fn get_size(&self) -> (f32, f32) {
         (self.0.params.pos.w, self.0.params.pos.h)
     }
 
-    pub fn get_width(&self) -> f32 {
+    #[must_use]
+    pub const fn get_width(&self) -> f32 {
         self.0.params.pos.w
     }
 
-    pub fn get_height(&self) -> f32 {
+    #[must_use]
+    pub const fn get_height(&self) -> f32 {
         self.0.params.pos.h
     }
 

@@ -249,24 +249,24 @@ impl RuggieDrawHandle<'_> {
         x: f32,
         y: f32,
         r: f32,
-        sides: u32,
+        sides: u16,
         thickness: u16,
         color: Color,
     ) {
         let color = Self::c2d_color(color);
-        let angle_step = 2.0 * std::f32::consts::PI / sides as f32;
+        let angle_step = 2.0 * std::f32::consts::PI / f32::from(sides);
 
         // SAFETY: The only way to call these ffi functions is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
             for i in 0..sides {
-                let a0 = angle_step * i as f32;
-                let a1 = angle_step * (i + 1) as f32;
+                let a0 = angle_step * f32::from(i);
+                let a1 = angle_step * (f32::from(i) + 1.0);
 
-                let x0 = x + r * a0.cos();
-                let y0 = y + r * a0.sin();
-                let x1 = x + r * a1.cos();
-                let y1 = y + r * a1.sin();
+                let x0 = r.mul_add(x, a0.cos());
+                let y0 = r.mul_add(y, a0.sin());
+                let x1 = r.mul_add(x, a1.cos());
+                let y1 = r.mul_add(y, a1.sin());
 
                 C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
             }
@@ -279,24 +279,24 @@ impl RuggieDrawHandle<'_> {
         y: f32,
         rx: f32,
         ry: f32,
-        sides: u32,
+        sides: u16,
         thickness: u16,
         color: Color,
     ) {
         let color = Self::c2d_color(color);
-        let angle_step = 2.0 * std::f32::consts::PI / sides as f32;
+        let angle_step = 2.0 * std::f32::consts::PI / f32::from(sides);
 
         // SAFETY: The only way to call these ffi functions is by creating an instance of
         // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
         unsafe {
             for i in 0..sides {
-                let a0 = angle_step * i as f32;
-                let a1 = angle_step * (i + 1) as f32;
+                let a0 = angle_step * f32::from(i);
+                let a1 = angle_step * (f32::from(i) + 1.0);
 
-                let x0 = x + rx / 2.0 + rx * a0.cos();
-                let y0 = y + ry / 2.0 + ry * a0.sin();
-                let x1 = x + rx / 2.0 + rx * a1.cos();
-                let y1 = y + ry / 2.0 + ry * a1.sin();
+                let x0 = rx.mul_add(x + rx / 2.0, a0.cos());
+                let y0 = ry.mul_add(y + ry / 2.0, a0.sin());
+                let x1 = rx.mul_add(x + rx / 2.0, a1.cos());
+                let y1 = ry.mul_add(y + ry / 2.0, a1.sin());
 
                 C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
             }
