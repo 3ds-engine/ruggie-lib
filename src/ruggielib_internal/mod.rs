@@ -1,39 +1,37 @@
+/// RuggieLib errors
+///
+/// This contains all errors that RuggieLib's base functionality can return in Results
 pub mod errors;
 use errors::RuggieLibCreationError;
 
+/// The module for drawing 2D graphics on screen
+///
+/// This module holds not only the DrawHandle for drawing on screen but also important modules for
+/// rendering like color, sprite and sprite_sheet
 pub mod draw;
 use draw::RuggieDrawHandle;
 
+/// The ScreenTarget module
+///
+/// Holds the screen representation and some useful consts that define window size and internal
+/// indexing
 pub mod screen;
 use screen::RuggieScreenTarget;
 
+/// The features module
+///
+/// Contains all the optional functionality that RuggieLib may have if the user decides to enable it
 pub mod features;
 use crate::features::console::RuggieConsole;
 
+/// The input module
+///
+/// TODO: Guillermo añade un comentario explicativo
 pub mod input;
 
 use citro2d_sys::{C2D_DEFAULT_MAX_OBJECTS, C2D_Fini, C2D_Init, C2D_Prepare};
 use citro3d_sys::{C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini, C3D_Init};
 use ctru::{prelude::*, services::romfs::RomFS};
-use ctru_sys::{GFX_BOTTOM, GFX_TOP};
-
-/// The necessary identifier to build a top screen console
-///
-/// # Example
-///
-/// ```
-/// let rl = RuggieLib::new().unwrap().with([ Feature::Console(TOP_SCREEN_INDEX) ]).unwrap();
-/// ```
-pub const TOP_SCREEN_INDEX: u8 = GFX_TOP;
-
-/// The necessary identifier to build a bottom screen console
-///
-/// # Example
-///
-/// ```
-/// let rl = RuggieLib::new().unwrap().with([ Feature::Console(BOTTOM_SCREEN_INDEX) ]).unwrap();
-/// ```
-pub const BOTTOM_SCREEN_INDEX: u8 = GFX_BOTTOM;
 
 /// The main API that abstracts all 3DS libraries away
 ///
@@ -52,7 +50,7 @@ pub const BOTTOM_SCREEN_INDEX: u8 = GFX_BOTTOM;
 /// ```
 ///
 /// # Notes
-/// 
+///
 /// If you try to use some of ruggie_lib's funtionality without creating an instance of RuggieLib
 /// frist, you may encounter undefined behaviour. **THIS STRUCT SHOULD BE THE FIRST THING YOU CREATE IN YOUR
 /// PROGRAM**
@@ -144,7 +142,7 @@ impl RuggieLib {
         self.apt.main_loop()
     }
 
-    /// Waits until screen renderer is drawing VBlank. 
+    /// Waits until screen renderer is drawing VBlank.
     ///
     /// Used to apply vsync to frame rendering. Should be used before rendering anything to screen
     ///

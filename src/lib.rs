@@ -1,5 +1,6 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(test_runner::run_console)]
+#![doc = include_str!("../README.md")]
 
 /// The internal module.
 ///
@@ -31,7 +32,7 @@ pub mod errors {
 pub mod prelude {
     // RuggieLib
     pub use crate::RuggieLib;
-    pub use crate::{BOTTOM_SCREEN_INDEX, TOP_SCREEN_INDEX};
+    pub use crate::features::console::{BOTTOM_SCREEN_INDEX, TOP_SCREEN_INDEX};
 
     // Features
     pub use crate::features::Feature;

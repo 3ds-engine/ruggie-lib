@@ -1,3 +1,4 @@
+
 use thiserror::Error;
 
 /// Represents the ways that RuggieLib creation and initialization might fail

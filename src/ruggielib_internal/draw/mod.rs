@@ -1,3 +1,12 @@
+/// Color representation and creation
+pub mod color;
+
+/// Sprite representation and creation
+pub mod sprite;
+
+/// Spritesheet representation and creation
+pub mod sprite_sheet;
+
 use citro2d_sys::{
     C2D_Color32, C2D_DrawCircleSolid, C2D_DrawEllipseSolid, C2D_DrawLine, C2D_DrawRectSolid,
     C2D_DrawSprite, C2D_DrawTriangle, C2D_SceneBegin, C2D_SpriteSetPos, C2D_TargetClear,
@@ -5,12 +14,7 @@ use citro2d_sys::{
 use citro3d_sys::{C3D_FRAME_SYNCDRAW, C3D_FrameBegin, C3D_FrameEnd};
 
 use crate::{RuggieLib, draw::sprite::Sprite, screen::RuggieScreenTarget};
-
-pub mod color;
 use color::Color;
-
-pub mod sprite;
-pub mod sprite_sheet;
 
 /// The API for 2D rendering in the 3DS
 ///
@@ -29,7 +33,7 @@ pub mod sprite_sheet;
 ///
 ///     // Top left screen
 ///     rl.clear_screen(Color::white());
-///     rl.draw_circle(100.0, 100.0, 50.0, Color::red()); 
+///     rl.draw_circle(100.0, 100.0, 50.0, Color::red());
 ///
 ///     // Bottom Screen
 ///     rl.draw_bottom();
@@ -153,7 +157,7 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// Screen clearing
+/// Screen clearing
 impl RuggieDrawHandle<'_> {
     /// Clears the target screen with the given render color
     pub fn clear_screen(&mut self, clear_color: Color) {
@@ -186,7 +190,7 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-// 2D Shapes
+/// 2D Shapes
 impl RuggieDrawHandle<'_> {
     /// Draws a rectangle.
     ///
@@ -201,9 +205,9 @@ impl RuggieDrawHandle<'_> {
         }
     }
 
-    /// Draws a triangle. 
+    /// Draws a triangle.
     ///
-    /// The three vertices of the triangle will be situated 
+    /// The three vertices of the triangle will be situated
     /// at (x0, y0), (x1, y1) and (x2, y2).
     pub fn draw_triangle(
         &self,
