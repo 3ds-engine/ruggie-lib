@@ -1,5 +1,16 @@
 use crate::{RuggieLib, input::errors::InputError};
 
+/// # Gyroscope Reading Example
+    /// ```
+    /// let mut rl = RuggieLib::new().unwrap();
+    /// rl.set_gyroscope(true)?;
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_vblank();
+    ///     rl.scan_input();
+    /// 
+    ///     let gyro_info = rl.get_gyroscope_info()?;
+    /// }
+    /// ```
 impl RuggieLib{
     ///Enables or disables the gyroscope. 
     ///

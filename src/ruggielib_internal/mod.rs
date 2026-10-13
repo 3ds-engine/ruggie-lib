@@ -26,7 +26,7 @@ use crate::features::console::RuggieConsole;
 
 /// The input module
 ///
-/// TODO: Guillermo añade un comentario explicativo
+/// Contains the functions associated with the input of the 3DS.
 pub mod input;
 
 use citro2d_sys::{C2D_DEFAULT_MAX_OBJECTS, C2D_Fini, C2D_Init, C2D_Prepare};

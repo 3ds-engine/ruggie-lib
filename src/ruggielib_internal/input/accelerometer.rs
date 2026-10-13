@@ -3,6 +3,18 @@ use crate::{RuggieLib, input::errors::InputError};
 ///The 3DS accelerometer varies between -2G to +2G. Dividing its raw data with this value normalizes it to that range.
 const ACCELEROMETER_SCALE:f32 = 1560.0;
 
+
+/// # Accelerometer Reading Example
+    /// ```
+    /// let mut rl = RuggieLib::new().unwrap();
+    /// rl.set_accelerometer(true)?;
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_vblank();
+    ///     rl.scan_input();
+    /// 
+    ///     let accel_info = rl.get_accelerometer_vector()?;
+    /// }
+    /// ```
 impl RuggieLib{
     ///Enables or disables the accelerometer. 
     ///

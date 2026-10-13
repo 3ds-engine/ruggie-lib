@@ -12,7 +12,21 @@ const CIRCLEPAD_MAX_ABS: i16 = 156;
 
 impl RuggieLib{
 
-    ///Scans the input to gather the input information. Should be used once per frame, and before checking any input value.
+    ///Scans the input to gather the input information. 
+    /// 
+    /// Should be used once per frame, and before checking any input value.
+    /// 
+    /// # Example
+    /// ```
+    /// let rl = RuggieLib::new().unwrap();
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_vblank();
+    ///     rl.scan_input();
+    /// 
+    ///     /* Check for input */
+    /// }
+    /// ```
+    /// 
     pub fn scan_input(&mut self){
         self.hid.scan_input();
     }
@@ -44,7 +58,7 @@ impl RuggieLib{
         self.hid.volume_slider()
     }
 
-    //Value of the circlepad in format (x,y) normalized into (-1,1) range
+    ///Value of the circlepad in format (x,y) normalized into (-1,1) range
     pub fn circlepad_direction(&self) -> (f32,f32){
         let circlepad_pos = self.hid.circlepad_position();
 
@@ -54,7 +68,7 @@ impl RuggieLib{
         (x,y)
     }
 
-    //Returns a tuple based on normalized c_stick direction
+    ///Returns a tuple based on normalized c_stick direction
     pub fn c_stick_direction(&self) -> (f32, f32){
         let mut c_stick_x = 0.0;
         let mut c_stick_y =  0.0;
@@ -82,6 +96,19 @@ impl RuggieLib{
         (c_stick_x * normalized_mul, c_stick_y * normalized_mul)
     }
 
+    ///If the touch pad is being pressed, returns the coordinates.
+    /// # Example
+    /// ```
+    /// let rl = RuggieLib::new().unwrap();
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_vblank();
+    ///     rl.scan_input();
+    /// 
+    ///     let Some(coord) = rl.touch_pad_position(){
+    ///         printl!("x_pos: {}, y_pos: {}", coord.0 , coord.1);
+    ///     }
+    /// }
+    /// ```
     pub fn touch_pad_position(&self) -> Option<(u16,u16)>{
         if self.hid.keys_held().contains(KeyPad::TOUCH){
             return Some(self.hid.touch_position())
@@ -91,15 +118,3 @@ impl RuggieLib{
     
     
 }
-
-///Necessary for passing the value from (-32768 , 32767) to (-1 , 1)
-fn normalize_i16(value: i16) -> f32{
-    let normalized = if value < 0 {
-    value as f32 / 32768.0
-    } else {
-    value as f32 / 32767.0
-    };
-
-    normalized
-}
-
