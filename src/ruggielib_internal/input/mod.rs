@@ -71,7 +71,7 @@ impl RuggieLib{
             c_stick_y = -1.0;
         }
 
-        let normalized_mul = 1.0/f32::sqrt((f32::powi(c_stick_x, 2) + f32::powi(c_stick_y, 2)));
+        let normalized_mul = 1.0/f32::sqrt(f32::powi(c_stick_x, 2) + f32::powi(c_stick_y, 2));
         (c_stick_x * normalized_mul, c_stick_y * normalized_mul)
     }
 

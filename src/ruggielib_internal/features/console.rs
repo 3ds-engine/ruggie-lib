@@ -23,21 +23,21 @@ pub const TOP_SCREEN_INDEX: u8 = GFX_TOP;
 pub const BOTTOM_SCREEN_INDEX: u8 = GFX_BOTTOM;
 
 /// Ruggie's console output handler
-pub struct RuggieConsole(/*Box<PrintConsole>*/);
+pub struct RuggieConsole(Box<PrintConsole>);
 
 /// Main console funtionality
 #[doc(hidden)]
 impl RuggieConsole {
     #[must_use]
     pub fn new(screen: gfxScreen_t) -> Self {
-        let mut console: Box<PrintConsole> = Box::new(unsafe { std::mem::zeroed() });
+        let mut console: Box<PrintConsole> = Box::default();
 
         unsafe {
             consoleInit(screen, console.as_mut());
             consoleSelect(console.as_mut());
         }
 
-        Self(/*console*/)
+        Self(console)
     }
 }
 
