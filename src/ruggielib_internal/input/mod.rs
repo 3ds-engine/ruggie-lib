@@ -46,8 +46,8 @@ impl RuggieLib{
     pub fn circlepad_direction(&self) -> (f32,f32){
         let circlepad_info = self.hid.circlepad_position();
 
-        (normalize_i16(circlepad_info.0),
-        normalize_i16(circlepad_info.1))
+        (circlepad_info.0 as f32,
+        circlepad_info.1 as f32)
     }
 
     //Returns a tuple based on normalized c_stick direction
@@ -71,7 +71,10 @@ impl RuggieLib{
             c_stick_y = -1.0;
         }
 
-        let normalized_mul = 1.0/f32::sqrt(f32::powi(c_stick_x, 2) + f32::powi(c_stick_y, 2));
+        let mut normalized_mul = 1.0;
+        if c_stick_y + c_stick_x != 0.0 {
+            normalized_mul = 1.0/f32::sqrt(f32::powi(c_stick_x, 2) + f32::powi(c_stick_y, 2));
+        }
         (c_stick_x * normalized_mul, c_stick_y * normalized_mul)
     }
 
