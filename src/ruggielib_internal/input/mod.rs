@@ -7,6 +7,8 @@ use ctru::services::hid::{KeyPad};
 use ctru_sys::osGet3DSliderState;
 use crate::{RuggieLib, input::buttons::Button};
 
+///Approximated max value of the circlepad
+const CIRCLEPAD_MAX_ABS: i16 = 156;
 
 impl RuggieLib{
 
@@ -44,10 +46,12 @@ impl RuggieLib{
 
     //Value of the circlepad in format (x,y) normalized into (-1,1) range
     pub fn circlepad_direction(&self) -> (f32,f32){
-        let circlepad_info = self.hid.circlepad_position();
+        let circlepad_pos = self.hid.circlepad_position();
 
-        (circlepad_info.0 as f32,
-        circlepad_info.1 as f32)
+        let x = (circlepad_pos.0 as f32 / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
+        let y = (circlepad_pos.1 as f32 / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
+
+        (x,y)
     }
 
     //Returns a tuple based on normalized c_stick direction
