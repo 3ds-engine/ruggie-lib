@@ -3,8 +3,7 @@ pub mod gyroscope;
 pub mod accelerometer;
 pub mod buttons;
 
-use ctru::services::hid::{KeyPad};
-use ctru_sys::osGet3DSliderState;
+use ctru::{os, services::hid::KeyPad};
 use crate::{RuggieLib, input::buttons::Button};
 
 ///Approximated max value of the circlepad
@@ -48,9 +47,7 @@ impl RuggieLib{
 
     ///Value of 3d slider from 0 to 1. This can be used to manage the 3D Stereoscopic strength manually.
     pub fn get_3d_slider_state(&self) -> f32{
-        unsafe{
-            osGet3DSliderState()
-        }
+        os::current_3d_slider_state()
     }
 
     ///Value of volume slider from 0 to 1. The 3ds automatically changes the program's volume, so don't use this for mixing the audio.
