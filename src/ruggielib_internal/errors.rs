@@ -18,7 +18,7 @@ pub enum RuggieLibCreationError {
 
 /// Represents the two ways RuggieLib initialization can fail inline
 #[derive(Error, Debug)]
-pub enum RuggieInitializationError {
+pub enum RuggieLibInitializationError {
     #[error("Could not initialize ruggielib: {0}")]
     Creation(RuggieLibCreationError),
 
