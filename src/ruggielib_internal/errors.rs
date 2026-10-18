@@ -25,3 +25,15 @@ pub enum RuggieLibInitializationError {
     #[error("Could not initialize ruggielib: {0}")]
     FeatureEnabling(FeatureEnableError),
 }
+
+impl From<RuggieLibCreationError> for RuggieLibInitializationError {
+    fn from(value: RuggieLibCreationError) -> Self {
+        Self::Creation(value)
+    }
+}
+
+impl From<FeatureEnableError> for RuggieLibInitializationError {
+    fn from(value: FeatureEnableError) -> Self {
+        Self::FeatureEnabling(value)
+    }
+}
