@@ -1,3 +1,1 @@
-pub struct Sound{
-    
-}
+pub struct Sound(pub u8);

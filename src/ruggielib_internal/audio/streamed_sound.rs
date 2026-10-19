@@ -1,3 +1,1 @@
-pub struct StreamedSound{
-
-}
+pub struct StreamedSound(pub u8);
