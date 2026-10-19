@@ -59,8 +59,8 @@ impl RuggieLib{
     pub fn circlepad_direction(&self) -> (f32,f32){
         let circlepad_pos = self.hid.circlepad_position();
 
-        let x = (circlepad_pos.0 as f32 / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
-        let y = (circlepad_pos.1 as f32 / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
+        let x = (f32::from(circlepad_pos.0) / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
+        let y = (f32::from(circlepad_pos.1) / CIRCLEPAD_MAX_ABS as f32).clamp(-1.0, 1.0);
 
         (x,y)
     }

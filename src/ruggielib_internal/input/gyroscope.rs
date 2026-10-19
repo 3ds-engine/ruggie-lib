@@ -31,7 +31,7 @@ impl RuggieLib{
         //Reads the coefficient of Gyroscope, to parse to Degrees per Second
         let mut coeff: f32 = 0.0;
         unsafe{
-            if ctru_sys::HIDUSER_GetGyroscopeRawToDpsCoefficient(&mut coeff) != 0{
+            if ctru_sys::HIDUSER_GetGyroscopeRawToDpsCoefficient(&raw mut coeff) != 0{
                 return Err(InputError::GyroscopeCoefficientRead)
             }
         }

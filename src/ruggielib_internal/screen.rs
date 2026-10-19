@@ -19,7 +19,7 @@ pub struct RuggieScreenTarget {
 
 impl RuggieScreenTarget {
 
-    /// Creates a new handler of the top left screen. It is meant to be used by RuggieLib in its
+    /// Creates a new handler of the top left screen. It is meant to be used by `RuggieLib` in its
     /// initialization
     #[must_use]
     pub fn new_top_left() -> Self {
@@ -36,7 +36,7 @@ impl RuggieScreenTarget {
         }
     }
 
-    /// Creates a new handler of the top right screen. It is meant to be used by RuggieLib in its
+    /// Creates a new handler of the top right screen. It is meant to be used by `RuggieLib` in its
     /// initialization
     #[must_use]
     pub fn new_top_right() -> Self {
@@ -53,7 +53,7 @@ impl RuggieScreenTarget {
         }
     }
 
-    /// Creates a new handler of the bottom screen. It is meant to be used by RuggieLib in its
+    /// Creates a new handler of the bottom screen. It is meant to be used by `RuggieLib` in its
     /// initialization
     #[must_use]
     pub fn new_bottom() -> Self {

@@ -5,12 +5,12 @@ use citro2d_sys::{
 };
 use std::ffi::CString;
 
-/// RuggieLib's representation of a SpriteSheet
+/// `RuggieLib`'s representation of a `SpriteSheet`
 ///
-/// SpriteSheets are collections of Sprites that may contain one or more of them. Sprites are
+/// `SpriteSheets` are collections of Sprites that may contain one or more of them. Sprites are
 /// indexed starting from 0. 
 ///
-/// To create an instance of a SpriteSheet you will need to enable RuggieLib's RomFS feature
+/// To create an instance of a `SpriteSheet` you will need to enable `RuggieLib`'s `RomFS` feature
 ///
 /// # Example
 ///
@@ -23,11 +23,11 @@ pub struct SpriteSheet {
     size: usize,
 }
 
-/// SpriteSheet implementation
+/// `SpriteSheet` implementation
 impl SpriteSheet {
     /// Creates a new sprite
     ///
-    /// To create an instance of a SpriteSheet you will need to enable RuggieLib's RomFS feature
+    /// To create an instance of a `SpriteSheet` you will need to enable `RuggieLib`'s `RomFS` feature
     ///
     /// # Example
     ///
@@ -54,9 +54,9 @@ impl SpriteSheet {
         }
     }
 
-    /// Obtains a Sprite from a SpriteSheet
+    /// Obtains a Sprite from a `SpriteSheet`
     ///
-    /// This is the only safe way to create a sprite using RuggieLib
+    /// This is the only safe way to create a sprite using `RuggieLib`
     ///
     /// # Example
     ///
@@ -81,7 +81,7 @@ impl SpriteSheet {
     }
 }
 
-/// Ensures the internal data of the SpriteSheet is freed after dropping
+/// Ensures the internal data of the `SpriteSheet` is freed after dropping
 impl Drop for SpriteSheet {
     fn drop(&mut self) {
         unsafe {

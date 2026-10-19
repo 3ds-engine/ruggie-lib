@@ -1,17 +1,17 @@
-/// RuggieLib errors
+/// `RuggieLib` errors
 ///
-/// This contains all errors that RuggieLib's base functionality can return in Results
+/// This contains all errors that `RuggieLib`'s base functionality can return in Results
 pub mod errors;
 use errors::RuggieLibCreationError;
 
 /// The module for drawing 2D graphics on screen
 ///
-/// This module holds not only the DrawHandle for drawing on screen but also important modules for
-/// rendering like color, sprite and sprite_sheet
+/// This module holds not only the `RuggieDrawHandle` for drawing on screen but also important modules for
+/// rendering like color, `sprite` and `sprite_sheet`
 pub mod draw;
 use draw::RuggieDrawHandle;
 
-/// The ScreenTarget module
+/// The `ScreenTarget` module
 ///
 /// Holds the screen representation and some useful consts that define window size and internal
 /// indexing
@@ -20,7 +20,7 @@ use screen::RuggieScreenTarget;
 
 /// The features module
 ///
-/// Contains all the optional functionality that RuggieLib may have if the user decides to enable it
+/// Contains all the optional functionality that `RuggieLib` may have if the user decides to enable it
 pub mod features;
 use crate::{audio::initialize_ndsp, features::console::RuggieConsole};
 
@@ -53,7 +53,7 @@ use ctru::{prelude::*, services::{ndsp::Ndsp, romfs::RomFS}};
 ///
 /// # Notes
 ///
-/// If you try to use some of ruggie_lib's funtionality without creating an instance of RuggieLib
+/// If you try to use some of `RuggieLib`'s funtionality without creating an instance of `RuggieLib`
 /// frist, you may encounter undefined behaviour. **THIS STRUCT SHOULD BE THE FIRST THING YOU CREATE IN YOUR
 /// PROGRAM**
 pub struct RuggieLib {
@@ -73,13 +73,13 @@ pub struct RuggieLib {
     console: Option<RuggieConsole>,
 }
 
-/// Generic RuggieLib utilities and struct construction
+/// Generic `RuggieLib` utilities and struct construction
 impl RuggieLib {
     /// The main way to create an API instance
     ///
     /// # Errors
     ///
-    /// It may return a RuggieLibCreationError if it fails to build Apt, Hid or Gfx, which are
+    /// It may return a `RuggieLibCreationError` if it fails to build Apt, Hid or Gfx, which are
     /// necesarry components of the 3DS application architecture
     pub fn new() -> Result<Self, RuggieLibCreationError> {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
@@ -112,8 +112,8 @@ impl RuggieLib {
 
     /// Get access to the draw handle
     ///
-    /// While the draw handle is in use, you lose access to RuggieLib's API because RuggieDrawHandle
-    /// takes a mutable reference of RuggieLib. This is meant as a restriction: **the rendering
+    /// While the draw handle is in use, you lose access to `RuggieLib`'s API because `RuggieDrawHandle`
+    /// takes a mutable reference of `RuggieLib`. This is meant as a restriction: **the rendering
     /// process should be done in one step, and rendering should be independent of any of the
     /// library's other utilities**
     ///
@@ -147,7 +147,7 @@ impl RuggieLib {
         self.apt.main_loop()
     }
 
-    /// Waits until screen renderer is drawing VBlank.
+    /// Waits until screen renderer is drawing vblank.
     ///
     /// Used to apply vsync to frame rendering. Should be used before rendering anything to screen
     ///
@@ -165,7 +165,7 @@ impl RuggieLib {
     }
 }
 
-/// Makes it so that every initialized resource is de-initialized when RuggieLib is dropped
+/// Makes it so that every initialized resource is de-initialized when `RuggieLib` is dropped
 impl Drop for RuggieLib {
     fn drop(&mut self) {
         unsafe {

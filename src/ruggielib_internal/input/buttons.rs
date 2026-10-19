@@ -35,20 +35,20 @@ pub enum Button{
 impl From<Button> for KeyPad {
     fn from(button: Button) -> Self {
         match button {
-            Button::A         => KeyPad::A,
-            Button::B         => KeyPad::B,
-            Button::Select    => KeyPad::SELECT,
-            Button::Start     => KeyPad::START,
-            Button::DPadRight => KeyPad::DPAD_RIGHT,
-            Button::DPadLeft  => KeyPad::DPAD_LEFT,
-            Button::DPadUp    => KeyPad::DPAD_UP,
-            Button::DPadDown  => KeyPad::DPAD_DOWN,
-            Button::R         => KeyPad::R,
-            Button::L         => KeyPad::L,
-            Button::X         => KeyPad::X,
-            Button::Y         => KeyPad::Y,
-            Button::ZL        => KeyPad::ZL,
-            Button::ZR        => KeyPad::ZR,
+            Button::A         => Self::A,
+            Button::B         => Self::B,
+            Button::Select    => Self::SELECT,
+            Button::Start     => Self::START,
+            Button::DPadRight => Self::DPAD_RIGHT,
+            Button::DPadLeft  => Self::DPAD_LEFT,
+            Button::DPadUp    => Self::DPAD_UP,
+            Button::DPadDown  => Self::DPAD_DOWN,
+            Button::R         => Self::R,
+            Button::L         => Self::L,
+            Button::X         => Self::X,
+            Button::Y         => Self::Y,
+            Button::ZL        => Self::ZL,
+            Button::ZR        => Self::ZR,
         }
     }
 }

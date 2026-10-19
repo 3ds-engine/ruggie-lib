@@ -9,7 +9,7 @@
 pub mod ruggielib_internal;
 pub use ruggielib_internal::*;
 
-/// The RuggieLib errors module
+/// The `RuggieLib` errors module
 ///
 /// This module is meant to bring all possible errors implemented throught the library togheter into
 /// one huge module, without sacrificing development ergonomics
@@ -19,7 +19,7 @@ pub mod errors {
     pub use crate::ruggielib_internal::input::errors::*;
 }
 
-/// The RuggieLib prelude
+/// The `RuggieLib` prelude
 ///
 /// This module is meant to bring the most useful types, functions and constants into scope all at
 /// once 

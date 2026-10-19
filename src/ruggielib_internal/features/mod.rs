@@ -5,14 +5,14 @@ pub mod console;
 
 /// Feature errors
 ///
-/// This contains all errors that RuggieLib's features can return in Results
+/// This contains all errors that `RuggieLib`'s features can return in Results
 pub mod errors;
 use errors::FeatureEnableError;
 
 use crate::{features::console::RuggieConsole, ruggielib_internal::RuggieLib};
 use ctru::services::romfs::RomFS;
 
-/// The representation of a feature that can optionally be enabled to add functionality to RuggieLib
+/// The representation of a feature that can optionally be enabled to add functionality to `RuggieLib`
 pub enum Feature {
     RomFS,          // Enables reading files from the application
     Stereoscopic3D, // Enables support for overlap 3D rendering using the 3D slider
@@ -21,7 +21,7 @@ pub enum Feature {
 
 /// Main feature implementation
 impl RuggieLib {
-    /// Enables features for RuggieLib. Intended to be used during construction of the library
+    /// Enables features for `RuggieLib`. Intended to be used during construction of the library
     /// handle, but features can be enabled as needed using this function
     ///
     /// # Example
@@ -31,7 +31,12 @@ impl RuggieLib {
     ///     Feature::Stereoscopic3D,
     ///     Feature::Console(TOP_SCREEN_INDEX)
     /// ]);
+    ///
     /// ```
+    ///
+    /// # Errors
+    /// This function can fail when trying to add a feature that requires a hardware/firmware
+    /// feature to be present and it can't find/load it
     pub fn with(
         mut self,
         features: impl IntoIterator<Item = Feature>,

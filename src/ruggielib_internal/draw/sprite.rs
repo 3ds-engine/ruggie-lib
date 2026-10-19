@@ -4,7 +4,7 @@ use citro2d_sys::{
 
 /// Ruggie's sprite representation
 ///
-/// They can only be safely obtained from SpriteSheets, they are used to render images represented
+/// They can only be safely obtained from `SpriteSheets`, they are used to render images represented
 /// as a 2D plane
 pub struct Sprite(C2D_Sprite);
 

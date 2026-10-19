@@ -47,7 +47,7 @@ pub struct RuggieDrawHandle<'a> {
 
 /// Creation of the Handle
 ///
-/// This is meant to be accessed from RuggieLib's `start_drawing()` method
+/// This is meant to be accessed from `RuggieLib`'s `start_drawing()` method
 impl<'a> RuggieDrawHandle<'a> {
     pub fn new(lib: &'a mut RuggieLib) -> Self {
         let current_screen = &raw const lib.top_left_screen;
@@ -400,7 +400,7 @@ impl RuggieDrawHandle<'_> {
 
 /// Destruction
 ///
-/// This ensures that the resources acquired by RuggieDrawHandle are freed when it is dropped
+/// This ensures that the resources acquired by `RuggieDrawHandle` are freed when it is dropped
 impl Drop for RuggieDrawHandle<'_> {
     fn drop(&mut self) {
         // SAFETY: Calling ffi deinitialization is always save as long as the only way to obtain a

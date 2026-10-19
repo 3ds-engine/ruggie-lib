@@ -3,7 +3,7 @@ use thiserror::Error;
 
 use crate::errors::FeatureEnableError;
 
-/// Represents the ways that RuggieLib creation and initialization might fail
+/// Represents the ways that `RuggieLib` creation and initialization might fail
 #[derive(Error, Debug)]
 pub enum RuggieLibCreationError {
     #[error("Could not create ruggielib: Failed to create Apt")]
@@ -19,7 +19,7 @@ pub enum RuggieLibCreationError {
     FailedNdsp,
 }
 
-/// Represents the two ways RuggieLib initialization can fail inline
+/// Represents the two ways `RuggieLib` initialization can fail inline
 #[derive(Error, Debug)]
 pub enum RuggieLibInitializationError {
     #[error("Could not initialize ruggielib: {0}")]
