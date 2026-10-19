@@ -14,6 +14,9 @@ pub enum RuggieLibCreationError {
 
     #[error("Could not create ruggielib: Failed to create Gfx")]
     FailedGfx,
+
+    #[error("Could not create ruggielib: Failed to create Ndsp")]
+    FailedNdsp,
 }
 
 /// Represents the two ways RuggieLib initialization can fail inline
