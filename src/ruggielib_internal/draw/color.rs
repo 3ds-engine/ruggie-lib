@@ -19,7 +19,6 @@ pub struct Color {
 
 /// Main builder implementation
 impl Color {
-
     /// The main way to build a color with custom RGBA values
     ///
     /// # Example
@@ -32,11 +31,38 @@ impl Color {
     pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
+
+    /// Building a color from a custom hex RGBA value
+    ///
+    /// # Errors
+    /// Fails to build a Color if the hex value provided is not parseable into 4 u8 values, one for
+    /// each color field
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let yellow = Color::from_hex(0xFFFF00FF);
+    /// assert_eq!(white, Color::yellow());
+    /// ```
+    #[must_use]
+    pub const fn from_hex(hex: u32) -> Self {
+        let r = ((hex >> 24) & 0xFF) as u8;
+        let g = ((hex >> 16) & 0xFF) as u8;
+        let b = ((hex >> 8) & 0xFF) as u8;
+        let a = (hex & 0xFF) as u8;
+
+        Self { r, g, b, a }
+    }
+}
+
+impl From<u32> for Color {
+    fn from(value: u32) -> Self {
+        Self::from_hex(value)
+    }
 }
 
 /// Commonly used color implementations
 impl Color {
-
     /// Builds a red color
     ///
     /// # Example
@@ -47,7 +73,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn red() -> Self {
-        Self { r: 255, g: 0, b: 0, a: 255 }
+        Self {
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255,
+        }
     }
 
     /// Builds a green color
@@ -60,7 +91,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn green() -> Self {
-        Self { r: 0, g: 255, b: 0, a: 255 }
+        Self {
+            r: 0,
+            g: 255,
+            b: 0,
+            a: 255,
+        }
     }
 
     /// Builds a blue color
@@ -73,7 +109,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn blue() -> Self {
-        Self { r: 0, g: 0, b: 255, a: 255 }
+        Self {
+            r: 0,
+            g: 0,
+            b: 255,
+            a: 255,
+        }
     }
 
     /// Builds a cyan color
@@ -86,7 +127,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn cyan() -> Self {
-        Self { r: 0, g: 255, b: 255, a: 255 }
+        Self {
+            r: 0,
+            g: 255,
+            b: 255,
+            a: 255,
+        }
     }
 
     /// Builds a magenta color
@@ -99,7 +145,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn magenta() -> Self {
-        Self { r: 255, g: 0, b: 255, a: 255 }
+        Self {
+            r: 255,
+            g: 0,
+            b: 255,
+            a: 255,
+        }
     }
 
     /// Builds a yellow color
@@ -112,7 +163,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn yellow() -> Self {
-        Self { r: 255, g: 255, b: 0, a: 255 }
+        Self {
+            r: 255,
+            g: 255,
+            b: 0,
+            a: 255,
+        }
     }
 
     /// Builds an orange color
@@ -125,7 +181,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn orange() -> Self {
-        Self { r: 255, g: 165, b: 0, a: 255 }
+        Self {
+            r: 255,
+            g: 165,
+            b: 0,
+            a: 255,
+        }
     }
 
     /// Builds a brown color
@@ -138,7 +199,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn brown() -> Self {
-        Self { r: 165, g: 42, b: 42, a: 255 }
+        Self {
+            r: 165,
+            g: 42,
+            b: 42,
+            a: 255,
+        }
     }
 
     /// Builds a white color
@@ -151,7 +217,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn white() -> Self {
-        Self { r: 255, g: 255, b: 255, a: 255 }
+        Self {
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 255,
+        }
     }
 
     /// Builds a black color
@@ -164,7 +235,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn black() -> Self {
-        Self { r: 0, g: 0, b: 0, a: 255 }
+        Self {
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 255,
+        }
     }
 
     /// Builds a pink color
@@ -177,7 +253,12 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn pink() -> Self {
-        Self { r: 255, g: 192, b: 203, a: 255 }
+        Self {
+            r: 255,
+            g: 192,
+            b: 203,
+            a: 255,
+        }
     }
 
     /// Builds a gray color
@@ -190,6 +271,11 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn gray() -> Self {
-        Self { r: 128, g: 128, b: 128, a: 255 }
+        Self {
+            r: 128,
+            g: 128,
+            b: 128,
+            a: 255,
+        }
     }
 }
