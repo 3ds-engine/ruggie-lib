@@ -11,6 +11,9 @@ ctru-sys = { git = "https://github.com/rust3ds/ctru-rs" }
 
 thiserror = "2.0.21"
 
+symphonia = { version = "0.6", default-features = false, features = ["mp3", "wav", "ogg", "vorbis"] }
+
+
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
