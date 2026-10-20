@@ -6,6 +6,6 @@ use crate::audio::audio_reader::AudioReader;
 /// 
 /// In the update method, the channel requests blocks from the audio_reader.
 pub struct Channel<'ndsp>{
-    channel:  NdspChannel<'ndsp>,
-    audio_reader: Option<AudioReader>
+    pub channel:  NdspChannel<'ndsp>,
+    pub audio_reader: Option<AudioReader>
 }
