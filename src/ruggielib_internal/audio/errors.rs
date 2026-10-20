@@ -5,4 +5,7 @@ use thiserror::Error;
 pub enum AudioError {
     #[error("Could not initialize NDSP")]
     NdspInitialization,
+
+    #[error("Could not initialize Audio Channel")]
+    AudioChannelInitialization(u8),
 }

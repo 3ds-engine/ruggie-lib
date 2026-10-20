@@ -7,10 +7,15 @@ pub enum AudioReader{
 }
 
 impl AudioReader{
-    pub fn get_next_block(&mut self) -> Wave<Box<[u8], LinearAllocator>>{
-        // Zeroed box allocated in the LINEAR memory.
-        let audio_data: Box<[_], _> = Box::new_in([0u8; 96], LinearAllocator);
 
-        Wave::new(audio_data, AudioFormat::PCM16Stereo, false)
+    //this is a placeholder
+    pub fn get_next_block(&mut self) -> Vec<u8, LinearAllocator>{
+        // Zeroed vector allocated in the LINEAR memory.
+        
+        let mut vec = Vec::new_in(LinearAllocator);
+
+        vec.resize_with(96, || 0);
+
+        vec
     }
 }
