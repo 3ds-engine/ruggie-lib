@@ -1,6 +1,6 @@
-use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, Channel as NdspChannel, Ndsp, wave::Wave}};
+use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, Channel as NdspChannel, Ndsp, wave::{Status, Wave}}};
 
-use crate::audio::{audio_reader::AudioReader, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, errors::AudioError};
 
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
@@ -9,13 +9,13 @@ pub struct Channel<'ndsp>{
     ///Channel associated to the NDSP processor
     pub channel:  NdspChannel<'ndsp>,
 
-    ///Audio reader which will be providing the audio blocks to the Channel's NDSP Channel
-    pub audio_reader: Option<AudioReader>, 
-
-    ///Audio buffers being used by the channel. Whenever one channel is playing, the audio reader must fill the other
-    double_wave_buffer: [Wave<Vec<u8, LinearAllocator>>; 2],
-
-    current_wave: usize
+    ///Block provider which will be providing the audio blocks to the Channel's current buffer
+    pub block_provider: Option<BlockProvider>, 
+    
+    ///Audio buffers being used by the channel. Whenever one channel is playing, the block provider must fill the other
+    audio_buffers: [Wave<Vec<u8, LinearAllocator>>; 2],
+    
+    current_buffer: usize
 }
 
 impl<'ndsp> Channel<'ndsp>{
@@ -24,21 +24,32 @@ impl<'ndsp> Channel<'ndsp>{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
                 channel :ndsp.channel(channel_index).map_err(|_| AudioError::AudioChannelInitialization(channel_index))?,
                 //Not audio reader selected
-                audio_reader: None,
+                block_provider: None,
                 //Double wave buffer initialization
-                double_wave_buffer: [Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Stereo, false),
+                audio_buffers: [Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Stereo, false),
                                     Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Stereo, false)],
-                current_wave: 0
+                current_buffer: 0
             }
         )
     }
 
-    pub fn swap_wave_buffer(&mut self){
-        //Swaps 0 to 1, or 1 to 0
-        self.current_wave = 1 - self.current_wave;
-    }
+    //Fills back buffer with new blocks by the block provider
+    pub fn check_for_update(&mut self) -> Result<(), AudioError>{
+        //If front buffer ended, switch it for the back-buffer
+        if let Some(ref mut provider) = self.block_provider && self.audio_buffers[self.current_buffer].status() == Status::Done {
 
-    pub fn get_current_wave(&mut self) -> &mut Wave<Vec<u8, LinearAllocator>>{
-        &mut self.double_wave_buffer[self.current_wave]
+            //Swaps current buffer
+            self.current_buffer = 1 - self.current_buffer;
+            
+            let back_buffer_index = 1- self.current_buffer;
+
+            //Fill the now back-buffer with the provider's next block
+            *self.audio_buffers[back_buffer_index].get_raw_buffer_mut().map_err(|_| AudioError::WaveBufferReference)? = provider.get_next_block();
+
+            //Append the back-buffer to the channel
+            self.channel.queue_wave(&mut self.audio_buffers[back_buffer_index]).map_err(|_| AudioError::WaveEnqueue)?;
+        }
+
+        Ok(())
     }
 }

@@ -2,11 +2,11 @@ use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, wave::Wave}};
 
 
 ///Manages loading, unloading and data from audio.
-pub enum AudioReader{
+pub enum BlockProvider{
 
 }
 
-impl AudioReader{
+impl BlockProvider{
 
     //this is a placeholder
     pub fn get_next_block(&mut self) -> Vec<u8, LinearAllocator>{

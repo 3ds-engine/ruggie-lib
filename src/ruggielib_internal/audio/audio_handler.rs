@@ -1,8 +1,6 @@
-use std::{array};
-
 use ctru::services::ndsp::{Ndsp, wave::Status};
 
-use crate::audio::{audio_reader::AudioReader, channel::Channel, errors::AudioError};
+use crate::audio::{channel::Channel, errors::AudioError};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
@@ -24,19 +22,11 @@ impl<'ndsp> AudioHandler<'ndsp>{
         })
     }
     
-    pub fn update(&mut self){
+    ///Check if any audio channels need another block
+    pub fn update_channels(&mut self){
         for channel in &mut self.audio_channels.iter_mut(){
-
-            //if current buffer ended playing, load the next chunk in that one and swap buffers
-            if channel.audio_reader.is_some() && channel.get_current_wave().status() == Status::Done{
-                if let Some(ref mut reader) = channel.audio_reader{
-                    
-                    *channel.get_current_wave().get_raw_buffer_mut().unwrap() = reader.get_next_block();
-
-                    channel.swap_wave_buffer();
-
-                }
-            }
+            //Check if the buffers need swap and fill
+            channel.check_for_update();
         }
     }
     

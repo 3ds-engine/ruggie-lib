@@ -2,7 +2,7 @@ pub mod errors;
 pub mod sound;
 pub mod streamed_sound;
 pub mod channel;
-pub mod audio_reader;
+pub mod block_provider;
 pub mod audio_handler;
 use ctru::services::ndsp::Ndsp;
 
