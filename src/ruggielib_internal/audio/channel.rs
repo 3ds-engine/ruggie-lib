@@ -1,6 +1,6 @@
 use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
-use crate::audio::{block_provider::BlockProvider, errors::AudioError};
+use crate::audio::{block_provider::{self, BlockProvider}, errors::AudioError};
 
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
@@ -61,5 +61,13 @@ impl Channel{
         channel.set_interpolation(InterpolationType::Linear);
 
         self.block_provider = Some(BlockProvider::Test);
+
+        if let Some(ref mut block_provider) = self.block_provider{
+            *self.audio_buffers[0].get_raw_buffer_mut().unwrap() = block_provider.get_next_block();
+            *self.audio_buffers[1].get_raw_buffer_mut().unwrap() = block_provider.get_next_block();
+
+            channel.queue_wave(&mut self.audio_buffers[0]);
+            channel.queue_wave(&mut self.audio_buffers[1]);
+        }
     }
 }
