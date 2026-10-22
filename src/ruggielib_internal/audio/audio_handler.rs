@@ -13,9 +13,12 @@ pub struct AudioHandler<'ndsp>{
 impl<'ndsp> AudioHandler<'ndsp>{
     pub fn new(ndsp: &'ndsp Ndsp) -> Result<Self, AudioError>{
 
-        let audio_channels: [Channel<'ndsp>; NUMBER_OF_CHANNELS] = std::array::try_from_fn(|i|{
+        let mut audio_channels: [Channel<'ndsp>; NUMBER_OF_CHANNELS] = std::array::try_from_fn(|i|{
             Channel::new(i as u8, &ndsp)
         })?;
+
+        //Init to hear if it sounds
+        audio_channels[0].test_init();
 
         Ok(AudioHandler { 
             audio_channels

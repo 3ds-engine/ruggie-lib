@@ -1,4 +1,4 @@
-use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, Channel as NdspChannel, Ndsp, wave::{Status, Wave}}};
+use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, Channel as NdspChannel, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
 use crate::audio::{block_provider::BlockProvider, errors::AudioError};
 
@@ -51,5 +51,13 @@ impl<'ndsp> Channel<'ndsp>{
         }
 
         Ok(())
+    }
+
+    pub fn test_init(&mut self){
+        self.channel.set_sample_rate(2200.);
+        self.channel.set_format(AudioFormat::PCM16Mono);
+        self.channel.set_interpolation(InterpolationType::Linear);
+
+        self.block_provider = Some(BlockProvider::Test);
     }
 }
