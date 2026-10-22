@@ -55,8 +55,9 @@ impl Channel{
     }
 
     pub fn test_init(&mut self, ndsp: &mut Ndsp){
+        println!("[Ruggie::AudioHandler] Test Init");
         let mut channel = ndsp.channel(self.channel).unwrap();
-        channel.set_sample_rate(2200.);
+        channel.set_sample_rate(44100.);
         channel.set_format(AudioFormat::PCM16Mono);
         channel.set_interpolation(InterpolationType::Linear);
 

@@ -2,7 +2,7 @@ use core::f32;
 
 use ctru::linear::LinearAllocator;
 
-const SAMPLE_SIZE: usize = 2200;
+const SAMPLE_SIZE: usize = 44100;
 
 const A_NOTE_HZ : usize = 440; //440HZ
 
@@ -15,6 +15,7 @@ impl BlockProvider{
 
     ///Returns a buffer of bytes. These bytes will be decoded as the audio format of the Channel in PCM
     pub fn get_next_block(&mut self) -> Vec<u8, LinearAllocator>{
+        println!("[RuggieLib::AudioHandler] Providing next block");
         // TEST!!!
 
         //STEP 1: Get a block sample (Generated)
