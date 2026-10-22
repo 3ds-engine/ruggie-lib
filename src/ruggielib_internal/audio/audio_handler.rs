@@ -1,4 +1,4 @@
-use ctru::services::ndsp::Ndsp;
+use ctru::services::ndsp::{Ndsp, OutputMode};
 
 use crate::audio::{channel::Channel, errors::AudioError};
 
@@ -15,6 +15,7 @@ impl AudioHandler{
     pub fn new() -> Result<Self, AudioError>{
 
         let mut ndsp = Ndsp::new().map_err(|_|AudioError::NdspInitialization)?;
+        ndsp.set_output_mode(OutputMode::Stereo);
 
         let mut audio_channels: [Channel; NUMBER_OF_CHANNELS] = std::array::try_from_fn(|i|{
             Channel::new(i as u8)

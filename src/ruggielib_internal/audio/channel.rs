@@ -37,7 +37,7 @@ impl Channel{
     pub fn check_for_update(&mut self, ndsp: &Ndsp) -> Result<(), AudioError>{
         //If front buffer ended, switch it for the back-buffer
         if let Some(ref mut provider) = self.block_provider && self.audio_buffers[self.current_buffer].status() == Status::Done {
-
+            println!("[Ruggie::AudioHandler] Channel {} updating", &self.channel);
             //Swaps current buffer
             self.current_buffer = 1 - self.current_buffer;
             
