@@ -32,7 +32,6 @@ impl AudioHandler{
     
     ///Check if any audio channels need another block
     pub fn update_channels(&mut self){
-        println!("[RuggieLib::AudioHandler] Checking sound channels");
         for channel in &mut self.audio_channels.iter_mut(){
             //Check if the buffers need swap and fill
             channel.check_for_update(&self.ndsp);

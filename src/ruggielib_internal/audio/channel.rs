@@ -35,6 +35,17 @@ impl Channel{
 
     //Fills back buffer with new blocks by the block provider
     pub fn check_for_update(&mut self, ndsp: &Ndsp) -> Result<(), AudioError>{
+
+        if self.channel == 0{
+            let status = match self.audio_buffers[self.current_buffer].status(){
+                Status::Free =>"Free",
+                Status::Done => "Done",
+                Status::Playing => "Playing",
+                Status::Queued => "Queued"
+            };
+            println!("[RuggieLib::AudioHandler] Channel 0: Block Provider -> {}, Buffer Status -> {}", self.block_provider.is_some(), status);
+        }
+
         //If front buffer ended, switch it for the back-buffer
         if let Some(ref mut provider) = self.block_provider && self.audio_buffers[self.current_buffer].status() == Status::Done {
             println!("[Ruggie::AudioHandler] Channel {} updating", &self.channel);
