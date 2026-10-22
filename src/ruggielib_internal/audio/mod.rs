@@ -4,18 +4,12 @@ pub mod streamed_sound;
 pub mod channel;
 pub mod block_provider;
 pub mod audio_handler;
-use ctru::services::ndsp::Ndsp;
 
 use crate::{RuggieLib, audio::{errors::AudioError, sound::Sound, streamed_sound::StreamedSound}};
 
-pub(crate) fn initialize_ndsp() -> Result<Ndsp, AudioError>{
-    //Initializes ndsp. It expects that DSP firmware is dumped. Later, DSP dumping process should be called if it isnt dumped.
-    Ok(Ndsp::new().map_err(|_| AudioError::NdspInitialization)?)
-}
-
 impl RuggieLib{
-    pub fn audio_update(&self){
-
+    pub fn audio_update(&mut self){
+        self.audio_handler.update_channels();
     }
 
     pub fn load_sound(&self) -> Result<Sound, AudioError>{

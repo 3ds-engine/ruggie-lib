@@ -22,7 +22,7 @@ use screen::RuggieScreenTarget;
 ///
 /// Contains all the optional functionality that `RuggieLib` may have if the user decides to enable it
 pub mod features;
-use crate::{audio::initialize_ndsp, features::console::RuggieConsole};
+use crate::{audio::audio_handler::AudioHandler, features::console::RuggieConsole};
 
 /// The input module
 ///
@@ -33,7 +33,7 @@ pub mod audio;
 
 use citro2d_sys::{C2D_DEFAULT_MAX_OBJECTS, C2D_Fini, C2D_Init, C2D_Prepare};
 use citro3d_sys::{C3D_DEFAULT_CMDBUF_SIZE, C3D_Fini, C3D_Init};
-use ctru::{prelude::*, services::{ndsp::Ndsp, romfs::RomFS}};
+use ctru::{prelude::*, services::romfs::RomFS};
 
 /// The main API that abstracts all 3DS libraries away
 ///
@@ -61,8 +61,7 @@ pub struct RuggieLib {
     apt: Apt,
     hid: Hid,
     gfx: Gfx,
-    ndsp: Ndsp,
-
+    audio_handler: AudioHandler,
     // Screens
     pub top_left_screen: RuggieScreenTarget,
     pub top_right_screen: RuggieScreenTarget,
@@ -85,7 +84,7 @@ impl RuggieLib {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
-        let ndsp = initialize_ndsp().map_err(|_| RuggieLibCreationError::FailedNdsp)?;
+        let audio_handler = AudioHandler::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
 
         unsafe {
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
@@ -101,7 +100,7 @@ impl RuggieLib {
             apt,
             hid,
             gfx,
-            ndsp,
+            audio_handler,
             top_left_screen,
             top_right_screen,
             bottom_screen,

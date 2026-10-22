@@ -1,6 +1,6 @@
 use core::f32;
 
-use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, wave::Wave}};
+use ctru::linear::LinearAllocator;
 
 const SAMPLE_SIZE: usize = 2200;
 
