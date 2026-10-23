@@ -37,7 +37,7 @@ impl AudioHandler{
             //Checks if channel is being used
             if let Some(channel) = channel{
                 //Check if the buffers need swap and fill
-                channel.check_for_update(&self.ndsp).unwrap();
+                channel.check_for_update(&self.ndsp);
             }
         }
     }

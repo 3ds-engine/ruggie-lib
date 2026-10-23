@@ -65,7 +65,7 @@ impl Channel{
             self.audio_buffers[back_buffer_index] = Wave::new(self.block_provider.get_next_block(), AudioFormat::PCM16Mono, false);
 
             //Append the back-buffer to the channel
-            let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::WaveEnqueue)?;
+            let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;
             channel.queue_wave(&mut self.audio_buffers[back_buffer_index]).map_err(|_| AudioError::WaveEnqueue)?;
         }
 
