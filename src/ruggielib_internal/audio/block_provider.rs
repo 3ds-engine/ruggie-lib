@@ -7,6 +7,7 @@ const SAMPLE_SIZE: usize = 44100;
 const A_NOTE_HZ : usize = 440; //440HZ
 
 ///Manages loading, unloading and data from audio.
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum BlockProvider{
     Test
 }
@@ -15,7 +16,6 @@ impl BlockProvider{
 
     ///Returns a buffer of bytes. These bytes will be decoded as the audio format of the Channel in PCM
     pub fn get_next_block(&mut self) -> Vec<u8, LinearAllocator>{
-        println!("[RuggieLib::AudioHandler] Providing next block");
         // TEST!!!
 
         //STEP 1: Get a block sample (Generated)
@@ -23,7 +23,7 @@ impl BlockProvider{
         //Add to the accumulative value each step for sin value. In radians
         let step_add = (A_NOTE_HZ as f32 / SAMPLE_SIZE as f32) * f32::consts::PI;
         
-        let mut sin_vec = Vec::new_in(LinearAllocator);
+        let mut sin_vec = Vec::new();
         let mut step_acc = 0.0;
 
         //Calculate sin function based on the step_add

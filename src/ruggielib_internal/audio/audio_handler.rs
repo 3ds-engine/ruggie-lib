@@ -8,7 +8,7 @@ const NUMBER_OF_CHANNELS: usize = 24;
 pub struct AudioHandler{
     ndsp: Ndsp,
     //Available channels in runtime
-    audio_channels: [Channel; NUMBER_OF_CHANNELS],
+    audio_channels: [Option<Channel>; NUMBER_OF_CHANNELS],
 }
 
 impl AudioHandler{
@@ -17,12 +17,12 @@ impl AudioHandler{
         let mut ndsp = Ndsp::new().map_err(|_|AudioError::NdspInitialization)?;
         ndsp.set_output_mode(OutputMode::Stereo);
 
-        let mut audio_channels: [Channel; NUMBER_OF_CHANNELS] = std::array::try_from_fn(|i|{
-            Channel::new(i as u8)
-        })?;
+        let mut audio_channels: [Option<Channel>; NUMBER_OF_CHANNELS] = std::array::from_fn(|_|{
+            None
+        });
 
         //Init to hear if it sounds
-        audio_channels[0].test_init(&mut ndsp);
+        audio_channels[0] = Some(Channel::new(0, &ndsp)?);
 
         Ok(AudioHandler { 
             ndsp,
@@ -33,8 +33,11 @@ impl AudioHandler{
     ///Check if any audio channels need another block
     pub fn update_channels(&mut self){
         for channel in &mut self.audio_channels.iter_mut(){
-            //Check if the buffers need swap and fill
-            channel.check_for_update(&self.ndsp);
+            //Checks if channel is being used
+            if let Some(channel) = channel{
+                //Check if the buffers need swap and fill
+                channel.check_for_update(&self.ndsp);
+            }
         }
     }
     
