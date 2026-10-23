@@ -17,11 +17,12 @@ impl AudioHandler{
         let mut ndsp = Ndsp::new().map_err(|_|AudioError::NdspInitialization)?;
         ndsp.set_output_mode(OutputMode::Stereo);
 
+        //No channels being used
         let mut audio_channels: [Option<Channel>; NUMBER_OF_CHANNELS] = std::array::from_fn(|_|{
             None
         });
 
-        //Init to hear if it sounds
+        //Use channel 0 for testing
         audio_channels[0] = Some(Channel::new(0, &ndsp)?);
 
         Ok(AudioHandler { 
@@ -36,7 +37,7 @@ impl AudioHandler{
             //Checks if channel is being used
             if let Some(channel) = channel{
                 //Check if the buffers need swap and fill
-                channel.check_for_update(&self.ndsp);
+                channel.check_for_update(&self.ndsp).unwrap();
             }
         }
     }

@@ -34,8 +34,8 @@ impl Channel{
         let mut audio_buffers = [Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
                             Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false)];
 
-        channel.queue_wave(&mut audio_buffers[0]);
-        channel.queue_wave(&mut audio_buffers[1]);
+        channel.queue_wave(&mut audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;
+        channel.queue_wave(&mut audio_buffers[1]).map_err(|_| AudioError::WaveEnqueue)?;
 
         Ok(Channel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
@@ -44,7 +44,7 @@ impl Channel{
                 block_provider,
                 //Double wave buffer initialization
                 audio_buffers,
-                
+
                 current_buffer: 0
             }
         )
@@ -70,21 +70,5 @@ impl Channel{
         }
 
         Ok(())
-    }
-
-    pub fn test_init(&mut self, ndsp: &mut Ndsp){
-        println!("[Ruggie::AudioHandler] Test Init");
-        let mut channel = ndsp.channel(self.channel_index).unwrap();
-        channel.set_sample_rate(44100.);
-        channel.set_format(AudioFormat::PCM16Mono);
-        channel.set_interpolation(InterpolationType::Linear);
-        
-        channel.set_mix(&AudioMix::default());
-
-        self.audio_buffers[0] = Wave::new(self.block_provider.get_next_block(), AudioFormat::PCM16Mono, false);
-        self.audio_buffers[1] = Wave::new(self.block_provider.get_next_block(), AudioFormat::PCM16Mono, false);
-
-        channel.queue_wave(&mut self.audio_buffers[0]);
-        channel.queue_wave(&mut self.audio_buffers[1]);
     }
 }
