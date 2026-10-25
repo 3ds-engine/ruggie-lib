@@ -14,4 +14,7 @@ pub enum AudioError {
 
     #[error("Error when queueing a Wave into a NDSP channel")]
     WaveEnqueue,
+
+    #[error("Used wrong channel index")]
+    WrongChannelIndex,
 }

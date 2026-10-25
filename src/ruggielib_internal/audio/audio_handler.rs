@@ -1,14 +1,14 @@
 use ctru::services::ndsp::{Ndsp, OutputMode};
 
-use crate::audio::{channel::Channel, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::AudioError};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
 
 pub struct AudioHandler{
     ndsp: Ndsp,
-    //Available channels in runtime.
-    //Must always be in the same spot of memory because of Ndsp's Wave reading
+    ///Available channels in runtime.
+    ///Must always be in the same spot of memory because of Ndsp's Wave reading
     audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]>,
 }
 
@@ -19,17 +19,34 @@ impl AudioHandler{
         ndsp.set_output_mode(OutputMode::Stereo);
 
         //No channels being used
-        let mut audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new(std::array::from_fn(|_|{
+        let audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new(std::array::from_fn(|_|{
             None
         }));
 
-        //Use channel 0 for testing
-        audio_channels[0] = Some(Channel::new(0, &ndsp)?);
-
-        Ok(AudioHandler { 
+        let mut audio_handler = AudioHandler {
             ndsp,
             audio_channels
-        })
+        };
+
+        //This is for testing
+        audio_handler.init_channel(0, BlockProvider::Test)?;
+
+        Ok(audio_handler)
+    }
+
+    ///Init the channel number __channel_index__ with the block provider
+    pub fn init_channel(&mut self, channel_index: u8, block_provider: BlockProvider) -> Result<(), AudioError>{
+        if self.audio_channels[channel_index as usize].is_some(){
+            return Err(AudioError::WrongChannelIndex)
+        }
+        self.audio_channels[channel_index as usize] = Some(Channel::new(channel_index, block_provider)?);
+
+        //To enqueue the buffers, they need to be in their final place of the memory. No moving is done like this. 
+        if let Some(ref mut channel) = self.audio_channels[channel_index as usize]{
+            channel.enqueue_buffers(&self.ndsp)?;
+        }
+
+        Ok(())
     }
     
     ///Check if any audio channels need another block

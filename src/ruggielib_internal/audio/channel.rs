@@ -19,24 +19,9 @@ pub struct Channel{
 }
 
 impl Channel{
-    pub fn new(channel_index: u8, ndsp: &Ndsp) -> Result<Self, AudioError>{
-
-        println!("[Ruggie::AudioHandler] Test Init");
-        let mut block_provider = BlockProvider::Test;
-
-        let mut channel = ndsp.channel(channel_index).map_err(|_| AudioError::AudioChannelInitialization(channel_index))?;
-
-        channel.set_sample_rate(44100.);
-        channel.set_format(AudioFormat::PCM16Mono);
-        channel.set_interpolation(InterpolationType::Linear);
-        channel.set_mix(&AudioMix::default());
-
-
-        let mut audio_buffers = [Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
+    pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
+        let audio_buffers = [Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
                             Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false)];
-
-        channel.queue_wave(&mut audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;
-        channel.queue_wave(&mut audio_buffers[1]).map_err(|_| AudioError::WaveEnqueue)?;
 
         Ok(Channel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
@@ -51,12 +36,26 @@ impl Channel{
         )
     }
 
+    pub fn enqueue_buffers(&mut self,ndsp: &Ndsp) -> Result<(), AudioError>{
+        let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::AudioChannelInitialization(self.channel_index))?;
+
+        channel.set_sample_rate(44100.);
+        channel.set_format(AudioFormat::PCM16Mono);
+        channel.set_interpolation(InterpolationType::Linear);
+        channel.set_mix(&AudioMix::default());
+
+        channel.queue_wave(&mut self.audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;
+        channel.queue_wave(&mut self.audio_buffers[1]).map_err(|_| AudioError::WaveEnqueue)?;
+
+        Ok(())
+    }
+
     //Fills back buffer with new blocks by the block provider
     pub fn check_for_update(&mut self, ndsp: &Ndsp) -> Result<(), AudioError>{
 
         //If front buffer ended, switch it for the back-buffer
         if self.audio_buffers[self.current_buffer].status() == Status::Done {
-            println!("[Ruggie::AudioHandler] Channel {} updating", &self.channel_index);
+
             //Swaps current buffer
             self.current_buffer = 1 - self.current_buffer;
             
