@@ -7,8 +7,9 @@ const NUMBER_OF_CHANNELS: usize = 24;
 
 pub struct AudioHandler{
     ndsp: Ndsp,
-    //Available channels in runtime
-    audio_channels: [Option<Channel>; NUMBER_OF_CHANNELS],
+    //Available channels in runtime.
+    //Must always be in the same spot of memory because of Ndsp's Wave reading
+    audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]>,
 }
 
 impl AudioHandler{
@@ -18,9 +19,9 @@ impl AudioHandler{
         ndsp.set_output_mode(OutputMode::Stereo);
 
         //No channels being used
-        let mut audio_channels: [Option<Channel>; NUMBER_OF_CHANNELS] = std::array::from_fn(|_|{
+        let mut audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new(std::array::from_fn(|_|{
             None
-        });
+        }));
 
         //Use channel 0 for testing
         audio_channels[0] = Some(Channel::new(0, &ndsp)?);
