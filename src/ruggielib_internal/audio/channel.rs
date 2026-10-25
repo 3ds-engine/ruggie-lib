@@ -13,7 +13,8 @@ pub struct Channel{
     pub block_provider: BlockProvider, 
     
     ///Audio buffers being used by the channel. Whenever one channel is playing, the block provider must fill the other
-    audio_buffers: [Wave<Vec<u8, LinearAllocator>>; 2],
+    /// The waves live in the heap as not only their buffer but their control data must always be in the same memory spot
+    audio_buffers: Box<[Wave<Vec<u8, LinearAllocator>>; 2]>,
     
     current_buffer: usize
 }
@@ -31,8 +32,8 @@ impl Channel{
 
         let mut block_provider = BlockProvider::Test;
 
-        let mut audio_buffers = [Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
-                            Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false)];
+        let mut audio_buffers = Box::new([Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
+                            Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false)]);
 
         channel.queue_wave(&mut audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;
         channel.queue_wave(&mut audio_buffers[1]).map_err(|_| AudioError::WaveEnqueue)?;
