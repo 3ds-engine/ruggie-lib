@@ -1,5 +1,6 @@
 #![feature(custom_test_frameworks)]
 #![feature(array_try_from_fn)]
+#![feature(allocator_api)]
 #![test_runner(test_runner::run_console)]
 #![doc = include_str!("../README.md")]
 
