@@ -19,9 +19,17 @@ pub struct Channel{
 }
 
 impl Channel{
-    pub fn new(channel_index: u8, block_provider: BlockProvider) -> Result<Self, AudioError>{
-        let audio_buffers = [Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Mono, false),
-                            Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Mono, false)];
+    pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
+
+        //Create buffers and fill them
+        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::new_in(LinearAllocator);
+        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::new_in(LinearAllocator);
+        block_provider.fill_with_next_block(&mut buffer_0);
+        block_provider.fill_with_next_block(&mut buffer_1);
+
+        //Store them in waves
+        let audio_buffers = [Wave::new(buffer_0, AudioFormat::PCM16Mono, false),
+                            Wave::new(buffer_1, AudioFormat::PCM16Mono, false)];
 
         Ok(Channel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed

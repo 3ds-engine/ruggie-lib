@@ -36,7 +36,7 @@ impl AudioHandler{
         }
         self.audio_channels[channel_index as usize] = Some(Channel::new(channel_index, block_provider)?);
 
-        //To enqueue the buffers, they need to be in their final place of the memory. No moving is done like this. 
+        //To enqueue the buffers, they need to be in their final place of the memory. No moving is done this way
         if let Some(ref mut channel) = self.audio_channels[channel_index as usize]{
             channel.enqueue_buffers(&self.ndsp)?;
         }
