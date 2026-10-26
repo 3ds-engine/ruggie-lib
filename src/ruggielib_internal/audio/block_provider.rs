@@ -2,11 +2,10 @@ use core::f32;
 
 use ctru::linear::LinearAllocator;
 
-const SAMPLE_SIZE: usize = 44100;
+use crate::audio::constants::*;
+
 
 const A_NOTE_HZ : usize = 440; //440HZ
-
-const BYTES_PER_F32: usize = 2;
 
 ///Manages loading, unloading and data from audio.
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -42,8 +41,8 @@ impl BlockProvider{
         //STEP 2: Convert the float block sample into a byte buffer
 
         //If the buffer cant hold the data, resize it
-        if buffer.len() != sin_vec.len() * BYTES_PER_F32  {
-            buffer.resize(sin_vec.len() * BYTES_PER_F32, 0);
+        if buffer.len() != SAMPLE_SIZE * BYTES_PER_F32  {
+            buffer.resize(SAMPLE_SIZE * BYTES_PER_F32, 0);
         }
 
         let mut buffer_index =0;

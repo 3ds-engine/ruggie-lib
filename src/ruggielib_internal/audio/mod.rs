@@ -4,6 +4,7 @@ pub mod streamed_sound;
 pub mod channel;
 pub mod block_provider;
 pub mod audio_handler;
+pub mod constants;
 
 use crate::{RuggieLib, audio::{block_provider::BlockProvider, errors::AudioError, sound::Sound, streamed_sound::StreamedSound}};
 

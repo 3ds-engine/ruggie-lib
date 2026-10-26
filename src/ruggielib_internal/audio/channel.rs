@@ -1,6 +1,6 @@
 use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, AudioMix, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
-use crate::audio::{block_provider::BlockProvider, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_SIZE, errors::AudioError};
 
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
@@ -47,7 +47,7 @@ impl Channel{
     pub fn enqueue_buffers(&mut self,ndsp: &Ndsp) -> Result<(), AudioError>{
         let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::AudioChannelInitialization(self.channel_index))?;
 
-        channel.set_sample_rate(44100.);
+        channel.set_sample_rate(SAMPLE_SIZE as f32);
         channel.set_format(AudioFormat::PCM16Mono);
         channel.set_interpolation(InterpolationType::Linear);
         channel.set_mix(&AudioMix::default());
