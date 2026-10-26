@@ -23,15 +23,10 @@ impl AudioHandler{
             None
         }));
 
-        let mut audio_handler = AudioHandler {
+        Ok(AudioHandler {
             ndsp,
             audio_channels
-        };
-
-        //This is for testing
-        audio_handler.init_channel(0, BlockProvider::Test)?;
-
-        Ok(audio_handler)
+        })
     }
 
     ///Init the channel number __channel_index__ with the block provider

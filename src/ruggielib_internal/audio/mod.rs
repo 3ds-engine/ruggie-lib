@@ -5,7 +5,7 @@ pub mod channel;
 pub mod block_provider;
 pub mod audio_handler;
 
-use crate::{RuggieLib, audio::{errors::AudioError, sound::Sound, streamed_sound::StreamedSound}};
+use crate::{RuggieLib, audio::{block_provider::BlockProvider, errors::AudioError, sound::Sound, streamed_sound::StreamedSound}};
 
 impl RuggieLib{
     pub fn audio_update(&mut self){
@@ -22,6 +22,10 @@ impl RuggieLib{
 
     pub fn play_sound(&self, sound: &Sound){
 
+    }
+
+    pub fn play_test_sound(&mut self){
+        self.audio_handler.init_channel(0, BlockProvider::Test);
     }
 
     pub fn play_streamed_sound(&self, streamed_sound: &StreamedSound){
