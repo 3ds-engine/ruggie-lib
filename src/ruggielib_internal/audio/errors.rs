@@ -17,4 +17,7 @@ pub enum AudioError {
 
     #[error("Used wrong channel index")]
     WrongChannelIndex,
+
+    #[error("Could not obtain raw_buf_mut of wave")]
+    WaveBufferRef,
 }

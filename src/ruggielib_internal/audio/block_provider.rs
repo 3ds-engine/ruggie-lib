@@ -6,6 +6,8 @@ const SAMPLE_SIZE: usize = 44100;
 
 const A_NOTE_HZ : usize = 440; //440HZ
 
+const BYTES_PER_F32: usize = 2;
+
 ///Manages loading, unloading and data from audio.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum BlockProvider{
@@ -15,7 +17,7 @@ pub enum BlockProvider{
 impl BlockProvider{
 
     ///Returns a buffer of bytes. These bytes will be decoded as the audio format of the Channel in PCM
-    pub fn get_next_block(&mut self) -> Vec<u8, LinearAllocator>{
+    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) {
         // TEST!!!
 
         //STEP 1: Get a block sample (Generated)
@@ -39,20 +41,27 @@ impl BlockProvider{
         
         //STEP 2: Convert the float block sample into a byte buffer
 
-        let bytes: Vec<u8> = sin_vec
-        .iter()
-        .flat_map(|&s| {
-            let s = s.clamp(-1.0, 1.0);
-            let pcm = (s * 32767.0) as i16;
-            pcm.to_le_bytes()
-        })
-        .collect();
+        //If the buffer cant hold the data, resize it
+        if buffer.len() != sin_vec.len() * BYTES_PER_F32  {
+            buffer.resize(sin_vec.len() * BYTES_PER_F32, 0);
+        }
 
-        let mut linear_buffer: Vec<u8, LinearAllocator> = Vec::with_capacity_in(bytes.len(), LinearAllocator);
+        let mut buffer_index =0;
 
-        //Copies vector in normal memory to vector in linear memory. Should be done once in linear memory
-        linear_buffer.extend_from_slice(&bytes);
+        for value in sin_vec{
+            let value = value.clamp(-1.0, 1.0);
+            let pcm = (value * 32767.0) as i16;
 
-        linear_buffer
+            for byte in pcm.to_le_bytes(){
+                buffer[buffer_index] = byte;
+
+                buffer_index+=1;
+            }
+        }
+
+        //If there was not enough info to fill the entire buffer, fill it with 0
+        for i in buffer_index..buffer.len(){
+            buffer[i] = 0;
+        }
     }
 }

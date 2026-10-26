@@ -19,9 +19,9 @@ pub struct Channel{
 }
 
 impl Channel{
-    pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
-        let audio_buffers = [Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false),
-                            Wave::new(block_provider.get_next_block(), AudioFormat::PCM16Mono, false)];
+    pub fn new(channel_index: u8, block_provider: BlockProvider) -> Result<Self, AudioError>{
+        let audio_buffers = [Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Mono, false),
+                            Wave::new(Vec::new_in(LinearAllocator), AudioFormat::PCM16Mono, false)];
 
         Ok(Channel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
@@ -62,7 +62,8 @@ impl Channel{
             let back_buffer_index = 1- self.current_buffer;
 
             //Fill the now back-buffer with the provider's next block
-            self.audio_buffers[back_buffer_index] = Wave::new(self.block_provider.get_next_block(), AudioFormat::PCM16Mono, false);
+            let raw_buffer = self.audio_buffers[back_buffer_index].get_raw_buffer_mut().map_err(|_| AudioError::WaveBufferRef)?;
+            self.block_provider.fill_with_next_block(raw_buffer);
 
             //Append the back-buffer to the channel
             let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;
