@@ -21,3 +21,20 @@ pub enum AudioError {
     #[error("Could not obtain raw_buf_mut of wave")]
     WaveBufferRef,
 }
+
+#[derive(Error, Debug)]
+pub enum LoadAudioError{
+    #[error("Wrong specified path")]
+    WrongPath,
+
+    #[error("Requested audio already in memory")]
+    AlreadyLoaded,
+}
+
+#[derive(Error, Debug)]
+pub enum AudioStreamReadError{
+    #[error("Unrecoverable")]
+    UnrecoverableSymphoniaError,
+    #[error("Packet skipped")]
+    PacketSkip,
+}

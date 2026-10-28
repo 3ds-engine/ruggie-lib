@@ -1,6 +1,8 @@
+use std::{collections::HashMap, fs::File};
+
 use ctru::services::ndsp::{Ndsp, OutputMode};
 
-use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::{AudioError, LoadAudioError}};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
@@ -10,6 +12,7 @@ pub struct AudioHandler{
     ///Available channels in runtime.
     ///Must always be in the same spot of memory because of Ndsp's Wave reading
     audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]>,
+    loaded_sounds: HashMap<String, File>
 }
 
 impl AudioHandler{
@@ -25,7 +28,8 @@ impl AudioHandler{
 
         Ok(AudioHandler {
             ndsp,
-            audio_channels
+            audio_channels,
+            loaded_sounds: HashMap::new()
         })
     }
 
@@ -40,6 +44,18 @@ impl AudioHandler{
         if let Some(ref mut channel) = self.audio_channels[channel_index as usize]{
             channel.enqueue_buffers(&self.ndsp)?;
         }
+
+        Ok(())
+    }
+
+    pub fn load_sound(&mut self, path: &str) -> Result<(), LoadAudioError>{
+        let file = File::open(path).map_err(|_| LoadAudioError::WrongPath)?;
+        
+        if self.loaded_sounds.get(&path.to_string()).is_some(){
+            return Err(LoadAudioError::AlreadyLoaded)
+        }
+
+        self.loaded_sounds.insert(path.to_string(), file);
 
         Ok(())
     }

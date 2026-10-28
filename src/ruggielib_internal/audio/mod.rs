@@ -6,13 +6,14 @@ pub mod block_provider;
 pub mod audio_handler;
 pub mod constants;
 
-use crate::{RuggieLib, audio::{block_provider::BlockProvider, errors::AudioError, sound::Sound, streamed_sound::StreamedSound}};
+use crate::RuggieLib;
 
 impl RuggieLib{
     pub fn audio_update(&mut self){
         self.audio_handler.update_channels();
     }
 
+    /* 
     pub fn load_sound(&self) -> Result<Sound, AudioError>{
         Ok(Sound(0))
     }
@@ -25,10 +26,6 @@ impl RuggieLib{
 
     }
 
-    pub fn play_test_sound(&mut self){
-        self.audio_handler.init_channel(0, BlockProvider::Test);
-    }
-
     pub fn play_streamed_sound(&self, streamed_sound: &StreamedSound){
 
     }
@@ -39,7 +36,9 @@ impl RuggieLib{
     }
 
     //The variable is consumed as it must no be used after calling this function
+    
     pub fn unload_streamed_sound(&self, streamed_sound: StreamedSound){
 
     }
+    */
 }
