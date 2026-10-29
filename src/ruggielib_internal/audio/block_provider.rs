@@ -69,10 +69,9 @@ impl BlockProvider{
     
             match audio_buffer{
                 Ok(Some(buf)) =>{
-                    let channels = *&buf.spec().channels().count();
-                    let duration = buf.capacity() as usize;
                     //Resize the buffer to fit the info
-                    sample_buffer.resize(channels * duration, 0);
+                    sample_buffer.clear();
+                    sample_buffer.resize(buf.byte_len(), 0);
                     //Copy the info to the sample_buffer
                     buf.copy_bytes_interleaved(&mut sample_buffer);
 
