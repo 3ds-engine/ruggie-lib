@@ -1,1 +1,1 @@
-pub struct StreamedSound(pub u8);
+pub struct StreamedSound(pub(crate) String);

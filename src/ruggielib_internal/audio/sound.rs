@@ -1,1 +1,1 @@
-pub struct Sound(pub u8);
+pub struct Sound(pub(crate) String);

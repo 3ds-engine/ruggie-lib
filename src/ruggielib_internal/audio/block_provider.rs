@@ -3,7 +3,7 @@ use std::fs::File;
 use ctru::linear::LinearAllocator;
 use symphonia::core::{audio::GenericAudioBufferRef, codecs::audio::{AudioDecoder, AudioDecoderOptions}, formats::{FormatOptions, FormatReader, TrackType, probe::Hint}, io::MediaSourceStream, meta::MetadataOptions};
 
-use crate::audio::errors::AudioStreamReadError;
+use crate::audio::errors::{AudioStreamReadError, BlockProviderError, SampleRateError};
 use symphonia::core::errors::Error;
 
 ///Manages loading, unloading and data from audio.
@@ -16,7 +16,7 @@ pub struct BlockProvider{
 impl BlockProvider{
 
     //Picked from symphonia's basic example
-    pub fn new(file_handle: Box<File>) -> Self /*Result<Self, >*/{
+    pub fn new(file_handle: Box<File>) -> Result<Self, BlockProviderError>{
         // Create the media source stream.
         let mss = MediaSourceStream::new(file_handle, Default::default());
 
@@ -27,10 +27,10 @@ impl BlockProvider{
         // Probe the media source.
         let format = symphonia::default::get_probe()
             .probe(&Hint::new(), mss, fmt_opts, meta_opts)
-            .expect("unsupported format");
+            .map_err(|_| BlockProviderError::Initialization)?;
 
         // Find the first audio track with a known (decodeable) codec.
-        let track = format.default_track(TrackType::Audio).expect("no audio track");
+        let track = format.default_track(TrackType::Audio).ok_or(BlockProviderError::Initialization)?;
 
         // Use the default options for the decoder.
         let dec_opts: AudioDecoderOptions = Default::default();
@@ -41,20 +41,20 @@ impl BlockProvider{
                 track.codec_params.as_ref().expect("codec parameters missing").audio().unwrap(),
                 &dec_opts,
             )
-            .expect("unsupported codec");
+            .map_err(|_| BlockProviderError::Initialization)?;
 
         // Store the track identifier, it will be used to filter packets.
         let track_id = track.id;
 
-        BlockProvider {
+        Ok(BlockProvider {
             format,
             decoder,
             track_id
-        }
+        })
     }
 
-    ///Returns a buffer of bytes. These bytes will be decoded as the audio format of the Channel in PCM
-    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) {
+    ///Fills the buffer with the next block. Returns false if the sound needs to be stopped
+    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) -> bool{
         
         let mut audio_buffer = self.get_next_block();
 
@@ -66,14 +66,22 @@ impl BlockProvider{
         match audio_buffer{
             Ok(Some(buf)) =>{
                 //Buffer with info
+                if buffer.len() != buf.byte_len(){
+                    buffer.resize(buf.byte_len(), 0);
+                }
+                buf.copy_bytes_interleaved(buffer);
             },
             Ok(None) =>{
                 //Buffer ended streaming
+                return false
             },
             Err(_)=>{
                 //If there is an error, return unrecoverable err
+                return false
             }
         }
+
+        true
     }
 
     //Gets the next buffer from the decoder
@@ -121,6 +129,22 @@ impl BlockProvider{
             Err(_) => {
                 // An unrecoverable error occurred, halt decoding.
                 return Err(AudioStreamReadError::UnrecoverableSymphoniaError)
+            }
+        }
+    }
+
+    pub fn get_sample_rate(&self) -> Result<u32, SampleRateError>{
+        self.decoder.codec_params().sample_rate.ok_or_else(|| SampleRateError::RetrievalError)
+    }
+
+    pub fn get_channel_count(&self) -> usize{
+        match self.decoder.codec_params().channels{
+            Some(ref channels) =>{
+                return channels.count()
+            },
+            None =>{
+                //If there are no channels, the channels count is zero
+                return 0
             }
         }
     }

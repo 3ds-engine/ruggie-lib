@@ -1,8 +1,8 @@
-use std::{collections::HashMap, fs::File};
+use std::fs::File;
 
 use ctru::services::ndsp::{Ndsp, OutputMode};
 
-use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::{AudioError, LoadAudioError}};
+use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::{AudioError, SoundInitializationError}};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
@@ -12,7 +12,6 @@ pub struct AudioHandler{
     ///Available channels in runtime.
     ///Must always be in the same spot of memory because of Ndsp's Wave reading
     audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]>,
-    loaded_sounds: HashMap<String, File>
 }
 
 impl AudioHandler{
@@ -29,7 +28,6 @@ impl AudioHandler{
         Ok(AudioHandler {
             ndsp,
             audio_channels,
-            loaded_sounds: HashMap::new()
         })
     }
 
@@ -47,18 +45,6 @@ impl AudioHandler{
 
         Ok(())
     }
-
-    pub fn load_sound(&mut self, path: &str) -> Result<(), LoadAudioError>{
-        let file = File::open(path).map_err(|_| LoadAudioError::WrongPath)?;
-        
-        if self.loaded_sounds.get(&path.to_string()).is_some(){
-            return Err(LoadAudioError::AlreadyLoaded)
-        }
-
-        self.loaded_sounds.insert(path.to_string(), file);
-
-        Ok(())
-    }
     
     ///Check if any audio channels need another block
     pub fn update_channels(&mut self){
@@ -69,6 +55,18 @@ impl AudioHandler{
                 channel.check_for_update(&self.ndsp);
             }
         }
+    }
+
+    pub fn play_streamed_sound(&mut self, path: &str, channel_index: u8) -> Result<(), SoundInitializationError> {
+        //Load file as a boxed handle
+        let file = Box::new(File::open(path).map_err(|_| SoundInitializationError::WrongPath)?);
+
+        //Initialize the audio reader for the file
+        let block_provider = BlockProvider::new(file).map_err(|_|SoundInitializationError::BlockProviderInitialization)?;
+        //Append that reader to the specified channel
+        self.init_channel(channel_index, block_provider).map_err(|_| SoundInitializationError::ChannelInitialization)?;
+
+        Ok(())
     }
     
 }

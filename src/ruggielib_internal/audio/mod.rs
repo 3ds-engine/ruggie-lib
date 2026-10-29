@@ -13,6 +13,10 @@ impl RuggieLib{
         self.audio_handler.update_channels();
     }
 
+    pub fn play_streamed_sound(&mut self, path: &str){
+        self.audio_handler.play_streamed_sound(path, 0);
+    }
+
     /* 
     pub fn load_sound(&self) -> Result<Sound, AudioError>{
         Ok(Sound(0))
@@ -26,9 +30,7 @@ impl RuggieLib{
 
     }
 
-    pub fn play_streamed_sound(&self, streamed_sound: &StreamedSound){
-
-    }
+    
 
     //The variable is consumed as it must no be used after calling this function
     pub fn unload_sound(&self, sound: Sound){

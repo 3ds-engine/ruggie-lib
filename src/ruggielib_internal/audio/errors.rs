@@ -20,15 +20,21 @@ pub enum AudioError {
 
     #[error("Could not obtain raw_buf_mut of wave")]
     WaveBufferRef,
+
+    #[error("Audio reader has a bad format")]
+    BadFormat
 }
 
 #[derive(Error, Debug)]
-pub enum LoadAudioError{
+pub enum SoundInitializationError{
     #[error("Wrong specified path")]
     WrongPath,
 
-    #[error("Requested audio already in memory")]
-    AlreadyLoaded,
+    #[error("Could not stream audio in channel")]
+    ChannelInitialization,
+
+    #[error("Could not initialize block provider")]
+    BlockProviderInitialization,
 }
 
 #[derive(Error, Debug)]
@@ -37,4 +43,16 @@ pub enum AudioStreamReadError{
     UnrecoverableSymphoniaError,
     #[error("Packet skipped")]
     PacketSkip,
+}
+
+#[derive(Error, Debug)]
+pub enum SampleRateError{
+    #[error("Could not retrieve sample rate")]
+    RetrievalError,
+}
+
+#[derive(Error, Debug)]
+pub enum BlockProviderError{
+    #[error("Failed to initialize BlockProvider")]
+    Initialization,
 }
