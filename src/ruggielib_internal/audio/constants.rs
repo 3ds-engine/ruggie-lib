@@ -1,1 +1,1 @@
-pub const BYTES_PER_F32: usize = 2;
+pub const DECODES_PER_UPDATE: u8 = 10;

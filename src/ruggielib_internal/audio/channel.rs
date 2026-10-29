@@ -22,8 +22,8 @@ impl Channel{
     pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
 
         //Create buffers and fill them
-        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::new_in(LinearAllocator);
-        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::new_in(LinearAllocator);
+        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(44100, LinearAllocator);
+        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(44100, LinearAllocator);
         block_provider.fill_with_next_block(&mut buffer_0);
         block_provider.fill_with_next_block(&mut buffer_1);
 

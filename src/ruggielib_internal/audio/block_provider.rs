@@ -3,7 +3,7 @@ use std::fs::File;
 use ctru::linear::LinearAllocator;
 use symphonia::core::{audio::GenericAudioBufferRef, codecs::audio::{AudioDecoder, AudioDecoderOptions}, formats::{FormatOptions, FormatReader, TrackType, probe::Hint}, io::MediaSourceStream, meta::MetadataOptions};
 
-use crate::audio::errors::{AudioStreamReadError, BlockProviderError, SampleRateError};
+use crate::audio::{constants::DECODES_PER_UPDATE, errors::{AudioStreamReadError, BlockProviderError, SampleRateError}};
 use symphonia::core::errors::Error;
 
 ///Manages loading, unloading and data from audio.
@@ -55,29 +55,37 @@ impl BlockProvider{
 
     ///Fills the buffer with the next block. Returns false if the sound needs to be stopped
     pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) -> bool{
+
+        let mut sample_buffer = Vec::with_capacity(44100);
+        buffer.resize(0, 0);
         
-        let mut audio_buffer = self.get_next_block();
+        for i in 0..DECODES_PER_UPDATE{
+            let mut audio_buffer = self.get_next_block();
+    
+            //Get blocks until no need to skip
+            while let Err(AudioStreamReadError::PacketSkip) = audio_buffer{
+                audio_buffer = self.get_next_block();
+            }
+    
+            match audio_buffer{
+                Ok(Some(buf)) =>{
+                    let channels = *&buf.spec().channels().count();
+                    let duration = buf.capacity() as usize;
+                    //Resize the buffer to fit the info
+                    sample_buffer.resize(channels * duration, 0);
+                    //Copy the info to the sample_buffer
+                    buf.copy_bytes_interleaved(&mut sample_buffer);
 
-        //Get blocks until no need to skip
-        while let Err(AudioStreamReadError::PacketSkip) = audio_buffer{
-            audio_buffer = self.get_next_block();
-        }
-
-        match audio_buffer{
-            Ok(Some(buf)) =>{
-                //Buffer with info
-                if buffer.len() != buf.byte_len(){
-                    buffer.resize(buf.byte_len(), 0);
+                    buffer.extend_from_slice(&sample_buffer);
+                },
+                Ok(None) =>{
+                    //Buffer ended streaming
+                    return false
+                },
+                Err(_)=>{
+                    //If there is an error, return unrecoverable err
+                    return false
                 }
-                buf.copy_bytes_interleaved(buffer);
-            },
-            Ok(None) =>{
-                //Buffer ended streaming
-                return false
-            },
-            Err(_)=>{
-                //If there is an error, return unrecoverable err
-                return false
             }
         }
 
