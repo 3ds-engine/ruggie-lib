@@ -27,9 +27,21 @@ impl Channel{
         block_provider.fill_with_next_block(&mut buffer_0);
         block_provider.fill_with_next_block(&mut buffer_1);
 
+        let format = match block_provider.get_channel_count(){
+            1 =>{
+                AudioFormat::PCM8Mono
+            },
+            2 =>{
+                AudioFormat::PCM8Stereo
+            },
+            _ =>{
+                return Err(AudioError::BadFormat)
+            }
+        };
+
         //Store them in waves
-        let audio_buffers = [Wave::new(buffer_0, AudioFormat::PCM16Mono, false),
-                            Wave::new(buffer_1, AudioFormat::PCM16Mono, false)];
+        let audio_buffers = [Wave::new(buffer_0, format, false),
+                            Wave::new(buffer_1, format, false)];
 
         Ok(Channel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
@@ -52,10 +64,10 @@ impl Channel{
 
         match self.block_provider.get_channel_count(){
             1 =>{
-                channel.set_format(AudioFormat::PCM16Mono);
+                channel.set_format(AudioFormat::PCM8Mono);
             },
             2 =>{
-                channel.set_format(AudioFormat::PCM16Stereo);
+                channel.set_format(AudioFormat::PCM8Stereo);
             },
             _ =>{
                 return Err(AudioError::BadFormat)
