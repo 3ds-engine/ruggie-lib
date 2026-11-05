@@ -5,6 +5,7 @@ use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_BUFFER_SIZE,
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
 /// In the update method, the channel requests blocks from the audio_reader.
+
 pub struct Channel{
     ///Channel associated to the NDSP processor
     pub channel_index: u8,

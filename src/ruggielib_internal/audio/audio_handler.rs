@@ -11,7 +11,7 @@ pub struct AudioHandler{
     ndsp: Ndsp,
     ///Available channels in runtime.
     ///Must always be in the same spot of memory because of Ndsp's Wave reading
-    audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]>,
+    audio_channels: Vec<Option<Channel>>,
 }
 
 impl AudioHandler{
@@ -21,7 +21,8 @@ impl AudioHandler{
         ndsp.set_output_mode(OutputMode::Stereo);
 
         //No channels being used
-        let audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new([const { None }; NUMBER_OF_CHANNELS]);
+        let mut audio_channels: Vec<Option<Channel>> = Vec::with_capacity(NUMBER_OF_CHANNELS);
+        audio_channels.resize_with(NUMBER_OF_CHANNELS, || None);
 
         Ok(AudioHandler {
             ndsp,
