@@ -24,7 +24,11 @@ impl Channel{
 
         //Create buffers and fill them
         let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
+        buffer_0.resize_with(SAMPLE_BUFFER_SIZE, || 0);
+
         let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
+        buffer_1.resize_with(SAMPLE_BUFFER_SIZE, || 0);
+
         block_provider.fill_with_next_block(&mut buffer_0);
         block_provider.fill_with_next_block(&mut buffer_1);
 
