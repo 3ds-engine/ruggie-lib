@@ -36,23 +36,3 @@ pub enum SoundInitializationError{
     #[error("Could not initialize block provider")]
     BlockProviderInitialization,
 }
-
-#[derive(Error, Debug)]
-pub enum AudioStreamReadError{
-    #[error("Unrecoverable")]
-    UnrecoverableSymphoniaError,
-    #[error("Packet skipped")]
-    PacketSkip,
-}
-
-#[derive(Error, Debug)]
-pub enum SampleRateError{
-    #[error("Could not retrieve sample rate")]
-    RetrievalError,
-}
-
-#[derive(Error, Debug)]
-pub enum BlockProviderError{
-    #[error("Failed to initialize BlockProvider")]
-    Initialization,
-}

@@ -1,1 +1,1 @@
-pub const DECODES_PER_UPDATE: u8 = 10;
+pub const SAMPLE_BUFFER_SIZE: usize = 4400;

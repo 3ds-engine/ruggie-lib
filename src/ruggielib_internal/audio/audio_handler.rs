@@ -59,10 +59,10 @@ impl AudioHandler{
 
     pub fn play_streamed_sound(&mut self, path: &str, channel_index: u8) -> Result<(), SoundInitializationError> {
         //Load file as a boxed handle
-        let file = Box::new(File::open(path).map_err(|_| SoundInitializationError::WrongPath)?);
+        let file = File::open(path).map_err(|_| SoundInitializationError::WrongPath)?;
 
         //Initialize the audio reader for the file
-        let block_provider = BlockProvider::new(file).map_err(|_|SoundInitializationError::BlockProviderInitialization)?;
+        let block_provider = BlockProvider::new(file);
         //Append that reader to the specified channel
         self.init_channel(channel_index, block_provider).map_err(|_| SoundInitializationError::ChannelInitialization)?;
 

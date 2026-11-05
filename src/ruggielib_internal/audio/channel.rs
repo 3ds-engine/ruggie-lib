@@ -1,4 +1,4 @@
-use ctru::{linear::LinearAllocator, services::ndsp::{AudioFormat, AudioMix, InterpolationType, Ndsp, wave::{Status, Wave}}};
+use ctru::{linear::LinearAllocator, services::ndsp::{AudioMix, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
 use crate::audio::{block_provider::BlockProvider, errors::AudioError};
 
@@ -27,17 +27,7 @@ impl Channel{
         block_provider.fill_with_next_block(&mut buffer_0);
         block_provider.fill_with_next_block(&mut buffer_1);
 
-        let format = match block_provider.get_channel_count(){
-            1 =>{
-                AudioFormat::PCM8Mono
-            },
-            2 =>{
-                AudioFormat::PCM8Stereo
-            },
-            _ =>{
-                return Err(AudioError::BadFormat)
-            }
-        };
+        let format = block_provider.get_audio_format();
 
         //Store them in waves
         let audio_buffers = [Wave::new(buffer_0, format, false),
@@ -59,20 +49,10 @@ impl Channel{
     pub fn enqueue_buffers(&mut self,ndsp: &Ndsp) -> Result<(), AudioError>{
         let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::AudioChannelInitialization(self.channel_index))?;
 
-        let sample_rate = self.block_provider.get_sample_rate().map_err(|_| AudioError::BadFormat)?;
+        let sample_rate = self.block_provider.get_sample_rate();
         channel.set_sample_rate(sample_rate as f32);
 
-        match self.block_provider.get_channel_count(){
-            1 =>{
-                channel.set_format(AudioFormat::PCM8Mono);
-            },
-            2 =>{
-                channel.set_format(AudioFormat::PCM8Stereo);
-            },
-            _ =>{
-                return Err(AudioError::BadFormat)
-            }
-        }
+        channel.set_format(self.block_provider.get_audio_format());
         channel.set_interpolation(InterpolationType::None);
         channel.set_mix(&AudioMix::default());
 
