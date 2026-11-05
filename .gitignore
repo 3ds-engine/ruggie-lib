@@ -1,3 +1,4 @@
 /target
 /.vscode
 /dependencies/test-runner/target/*
+/src/main.rs
