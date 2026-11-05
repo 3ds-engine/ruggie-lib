@@ -58,7 +58,7 @@ impl Channel{
         channel.set_sample_rate(sample_rate as f32);
 
         channel.set_format(self.block_provider.get_audio_format());
-        channel.set_interpolation(InterpolationType::None);
+        channel.set_interpolation(InterpolationType::Linear);
         channel.set_mix(&AudioMix::default());
 
         channel.queue_wave(&mut self.audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;

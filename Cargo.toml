@@ -13,7 +13,6 @@ thiserror = "2.0.21"
 
 nanomp3 = "0.2.0"
 
-
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
