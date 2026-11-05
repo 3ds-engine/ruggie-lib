@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use ctru::services::ndsp::{Ndsp, OutputMode};
+use ctru::{services::ndsp::{Ndsp, OutputMode}};
 
 use crate::audio::{block_provider::BlockProvider, channel::Channel, errors::{AudioError, SoundInitializationError}};
 
@@ -21,9 +21,7 @@ impl AudioHandler{
         ndsp.set_output_mode(OutputMode::Stereo);
 
         //No channels being used
-        let audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new(std::array::from_fn(|_|{
-            None
-        }));
+        let audio_channels: Box<[Option<Channel>; NUMBER_OF_CHANNELS]> = Box::new([const { None }; NUMBER_OF_CHANNELS]);
 
         Ok(AudioHandler {
             ndsp,
