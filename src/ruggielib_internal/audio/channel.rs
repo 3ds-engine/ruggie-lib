@@ -1,6 +1,6 @@
 use ctru::{linear::LinearAllocator, services::ndsp::{AudioMix, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
-use crate::audio::{block_provider::BlockProvider, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_BUFFER_SIZE, errors::AudioError};
 
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
@@ -22,8 +22,8 @@ impl Channel{
     pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
 
         //Create buffers and fill them
-        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(44100, LinearAllocator);
-        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(44100, LinearAllocator);
+        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
+        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
         block_provider.fill_with_next_block(&mut buffer_0);
         block_provider.fill_with_next_block(&mut buffer_1);
 

@@ -1,1 +1,1 @@
-pub const SAMPLE_BUFFER_SIZE: usize = 4400;
+pub const SAMPLE_BUFFER_SIZE: usize = 44100;
