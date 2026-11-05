@@ -29,8 +29,8 @@ impl Channel{
         let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
         buffer_1.resize_with(SAMPLE_BUFFER_SIZE, || 0);
 
-        block_provider.fill_with_next_block(&mut buffer_0);
-        block_provider.fill_with_next_block(&mut buffer_1);
+        block_provider.fill_with_next_block(&mut buffer_0)?;
+        block_provider.fill_with_next_block(&mut buffer_1)?;
 
         let format = block_provider.get_audio_format();
 
@@ -80,7 +80,7 @@ impl Channel{
 
             //Fill the now back-buffer with the provider's next block
             let raw_buffer = self.audio_buffers[back_buffer_index].get_raw_buffer_mut().map_err(|_| AudioError::WaveBufferRef)?;
-            self.block_provider.fill_with_next_block(raw_buffer);
+            self.block_provider.fill_with_next_block(raw_buffer)?;
 
             //Append the back-buffer to the channel
             let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;

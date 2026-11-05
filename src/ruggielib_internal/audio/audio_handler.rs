@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{fs::File, path::Path};
 
 use ctru::{services::ndsp::{Ndsp, OutputMode}};
 
@@ -57,11 +57,8 @@ impl AudioHandler{
     }
 
     pub fn play_streamed_sound(&mut self, path: &str, channel_index: u8) -> Result<(), SoundInitializationError> {
-        //Load file as a boxed handle
-        let file = File::open(path).map_err(|_| SoundInitializationError::WrongPath)?;
-
         //Initialize the audio reader for the file
-        let block_provider = BlockProvider::new(file);
+        let block_provider = BlockProvider::new(Path::new(path))?;
         //Append that reader to the specified channel
         self.init_channel(channel_index, block_provider).map_err(|_| SoundInitializationError::ChannelInitialization)?;
 

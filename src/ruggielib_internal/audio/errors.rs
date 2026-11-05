@@ -21,8 +21,8 @@ pub enum AudioError {
     #[error("Could not obtain raw_buf_mut of wave")]
     WaveBufferRef,
 
-    #[error("Audio reader has a bad format")]
-    BadFormat
+    #[error("Could not obtain next block audio")]
+    NextBlock,
 }
 
 #[derive(Error, Debug)]
@@ -35,4 +35,7 @@ pub enum SoundInitializationError{
 
     #[error("Could not initialize block provider")]
     BlockProviderInitialization,
+
+    #[error("Extension not provided or not supported")]
+    BadExtension,
 }
