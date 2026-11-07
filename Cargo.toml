@@ -12,6 +12,7 @@ ctru-sys = { git = "https://github.com/rust3ds/ctru-rs" }
 thiserror = "2.0.21"
 
 nanomp3 = "0.2.0"
+hound = "3.5.1"
 
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }

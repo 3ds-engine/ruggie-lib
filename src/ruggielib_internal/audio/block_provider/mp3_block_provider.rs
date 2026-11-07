@@ -10,7 +10,6 @@ pub struct Mp3BlockProvider{
 }
 
 impl Mp3BlockProvider{
-    //Picked from symphonia's basic example
     pub fn new(file_handle: File) -> Self{
         let reader = Reader::<_, i16>::new(BufReader::new(file_handle)).unwrap();
 
@@ -20,15 +19,7 @@ impl Mp3BlockProvider{
     }
 
     ///Fills the buffer with the next block. Returns false if the sound needs to be stopped
-    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) -> Result<(), AudioError>{
-
-        //Unsafe fast cast from u8 to i16 without copying
-        let pcm_slice_i16: &mut [i16] = unsafe {
-            std::slice::from_raw_parts_mut(
-                buffer.as_mut_ptr() as *mut i16,
-                buffer.len() / std::mem::size_of::<i16>(),
-            )
-        };
+    pub fn fill_with_next_block(&mut self, pcm_slice_i16: &mut [i16]) -> Result<(), AudioError>{
 
         self.reader.read(pcm_slice_i16).map_err(|_| AudioError::NextBlock)?;
 
