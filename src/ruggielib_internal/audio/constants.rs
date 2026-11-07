@@ -1,1 +1,1 @@
-pub const SAMPLE_BUFFER_SIZE: usize = 44100;
+pub const SAMPLE_TIME: f32 = 0.5;

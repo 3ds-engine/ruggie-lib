@@ -47,4 +47,8 @@ impl WavBlockProvider{
             _ => AudioFormat::PCM16Stereo
         }
     }
+
+    pub fn num_channels(&self) -> u16{
+        self.reader.spec().channels
+    }
 }

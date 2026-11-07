@@ -66,4 +66,11 @@ impl BlockProvider{
             Wav(block_provider) => block_provider.get_audio_format()
         }
     }
+
+    pub fn num_channels(&self) -> u16{
+        match self{
+            Mp3(block_provider) => block_provider.num_channels(),
+            Wav(block_provider) => block_provider.num_channels()
+        }
+    }
 }

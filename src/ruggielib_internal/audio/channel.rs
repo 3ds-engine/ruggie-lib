@@ -1,6 +1,6 @@
 use ctru::{linear::LinearAllocator, services::ndsp::{AudioMix, InterpolationType, Ndsp, wave::{Status, Wave}}};
 
-use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_BUFFER_SIZE, errors::AudioError};
+use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_TIME, errors::AudioError};
 
 /// Struct that represents a channel of the NDSP processor of the 3DS. It holds an option to an audio_reader. 
 /// 
@@ -21,13 +21,16 @@ pub struct Channel{
 
 impl Channel{
     pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
+        //Buffer size to hold information for SAMPLE_TIME time
+        let sample_buffer_size = block_provider.get_sample_rate() as f32 * block_provider.num_channels() as f32 * SAMPLE_TIME;
+        let sample_buffer_size = sample_buffer_size as usize;
 
         //Create buffers and fill them
-        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
-        buffer_0.resize_with(SAMPLE_BUFFER_SIZE, || 0);
+        let mut buffer_0: Vec<u8, LinearAllocator> = Vec::with_capacity_in(sample_buffer_size, LinearAllocator);
+        buffer_0.resize_with(sample_buffer_size, || 0);
 
-        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(SAMPLE_BUFFER_SIZE, LinearAllocator);
-        buffer_1.resize_with(SAMPLE_BUFFER_SIZE, || 0);
+        let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(sample_buffer_size, LinearAllocator);
+        buffer_1.resize_with(sample_buffer_size, || 0);
 
         block_provider.fill_with_next_block(&mut buffer_0)?;
         block_provider.fill_with_next_block(&mut buffer_1)?;

@@ -46,4 +46,11 @@ impl Mp3BlockProvider{
             }
         }
     }
+
+    pub fn num_channels(&self) -> u16{
+        match self.reader.channels(){
+            Some(channels) => channels.num() as u16,
+            None => 0
+        }
+    }
 }

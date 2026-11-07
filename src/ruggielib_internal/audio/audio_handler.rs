@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path};
+use std::path::Path;
 
 use ctru::{services::ndsp::{Ndsp, OutputMode}};
 
