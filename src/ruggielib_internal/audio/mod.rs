@@ -1,12 +1,13 @@
 pub mod errors;
 pub mod sound;
 pub mod streamed_sound;
-pub mod streaming_channel;
+pub mod channel;
 pub mod block_provider;
 pub mod audio_handler;
 pub mod constants;
+mod loaded_audio;
 
-use crate::RuggieLib;
+use crate::{RuggieLib, audio::{errors::SoundInitializationError, sound::Sound}};
 
 impl RuggieLib{
     pub fn audio_update(&mut self){
@@ -17,18 +18,19 @@ impl RuggieLib{
         self.audio_handler.play_streamed_sound(path, 0);
     }
 
-    /* 
-    pub fn load_sound(&self) -> Result<Sound, AudioError>{
-        Ok(Sound(0))
+    
+    pub fn load_sound(&mut self, path: &str) -> Result<Sound, SoundInitializationError>{
+        self.audio_handler.load_sound(path)
     }
 
+    pub fn play_sound(&mut self, sound: &Sound){
+        self.audio_handler.play_sound(sound)
+    }
+    /*
     pub fn load_streamed_sound(&self) -> Result<StreamedSound, AudioError>{
         Ok(StreamedSound(0))
     }
 
-    pub fn play_sound(&self, sound: &Sound){
-
-    }
 
     
 

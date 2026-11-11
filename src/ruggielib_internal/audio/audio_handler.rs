@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::Path, rc::{Rc, Weak}};
 
 use ctru::{linear::LinearAllocator, services::ndsp::{Ndsp, OutputMode}};
 
-use crate::audio::{block_provider::BlockProvider, errors::{AudioError, SoundInitializationError}, sound::Sound, streaming_channel::StreamingChannel};
+use crate::audio::{block_provider::BlockProvider, channel::streaming_channel::StreamingChannel, errors::{AudioError, SoundInitializationError}, loaded_audio::{self, LoadedAudio}, sound::Sound};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
@@ -10,7 +10,7 @@ const NUMBER_OF_CHANNELS: usize = 24;
 pub struct AudioHandler{
     ndsp: Ndsp,
     //Loaded audio buffers in linear memory
-    loaded_sounds: HashMap<String, Weak<[u8], &'static LinearAllocator>>,
+    loaded_sounds: HashMap<String, LoadedAudio>,
     ///Available channels in runtime.
     ///Must always be in the same spot of memory because of Ndsp's Wave reading
     audio_channels: Vec<Option<StreamingChannel>>,
@@ -38,7 +38,7 @@ impl AudioHandler{
         if self.audio_channels[channel_index as usize].is_some(){
             return Err(AudioError::WrongChannelIndex)
         }
-        self.audio_channels[channel_index as usize] = Some(StreamingChannel::new(channel_index, block_provider)?);
+        self.audio_channels[channel_index as usize] = Some(StreamingChannel::new(channel_index, block_provider, &mut self.ndsp)?);
 
         //To enqueue the buffers, they need to be in their final place of the memory. No moving is done this way
         if let Some(ref mut channel) = self.audio_channels[channel_index as usize]{
@@ -68,25 +68,45 @@ impl AudioHandler{
         Ok(())
     }
 
+    pub fn play_sound(&mut self, sound: &Sound){
+
+    }
+
     pub fn load_sound(&mut self, path: &str) -> Result<Sound, SoundInitializationError>{
-        //A weak_ptr exists
-        if let Some(weak_ptr) = self.loaded_sounds.get_mut(path){
-            //Weak_ptr points to valid data
-            if let Some(rc) = weak_ptr.upgrade(){
-                return Ok(Sound(rc.clone()))
+        //A loaded audio exists
+        if let Some(loaded_audio) = self.loaded_sounds.get_mut(path){
+            match loaded_audio.handle_counter.upgrade(){
+                //If there are another handles existing, return a copy
+                Some(rc_handle) =>{
+                    return Ok(Sound(rc_handle.clone()))
+                },
+                //If there are no more handles, user requested a sound that was about to be deleted, so we create a new handle and pass it to prevent deletion
+                None =>{
+                    let rc_handle = Rc::new(());
+                    loaded_audio.handle_counter = Rc::downgrade(&rc_handle);
+                    return Ok(Sound(rc_handle))
+                }
             }
         }
+        //If the audio is not loaded, create it and pass the handle
 
-        let rc = Self::load_buffered_sound(path)?;
-        let weak = Rc::downgrade(&rc);
-        self.loaded_sounds.insert(path.to_string(), weak);
+        let mut block_provider = BlockProvider::new(Path::new(path))?;
+        let buffer_rc = Self::load_buffered_sound(&mut block_provider)?;
+        let handle_rc = Rc::new(());
+        let loaded_audio = LoadedAudio{
+            buffer: buffer_rc,
+            block_provider,
+            handle_counter: Rc::downgrade(&handle_rc)
+        };
+        
+        self.loaded_sounds.insert(path.to_string(), loaded_audio);
 
-        Ok(Sound(rc.clone()))
+        Ok(Sound(handle_rc))
     }
 
     ///Returns an Rc with a buffer filled with the audio information from path
-    fn load_buffered_sound(path: &str) -> Result<Rc<[u8], &'static LinearAllocator>, SoundInitializationError>{
-        let mut block_provider = BlockProvider::new(Path::new(path))?;
+    fn load_buffered_sound(block_provider: &mut BlockProvider) -> Result<Rc<[u8], LinearAllocator>, SoundInitializationError>{
+        
 
         //First, a resizable vector in heap
         let mut buffer: Vec<i16> = Vec::new();
@@ -105,7 +125,7 @@ impl AudioHandler{
         };
 
         //Copy the data slice into a linear memory Rc and return it
-        let buffer: Rc<[u8], &LinearAllocator> = Rc::clone_from_ref_in(buffer.as_slice(), &LinearAllocator);
+        let buffer: Rc<[u8], LinearAllocator> = Rc::clone_from_ref_in(buffer.as_slice(), LinearAllocator);
         
         Ok(buffer)
     }

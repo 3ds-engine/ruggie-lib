@@ -20,7 +20,7 @@ pub struct StreamingChannel{
 }
 
 impl StreamingChannel{
-    pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
+    pub fn new(channel_index: u8, mut block_provider: BlockProvider, ndsp: &mut Ndsp) -> Result<Self, AudioError>{
         //Buffer size to hold information for SAMPLE_TIME time
         let sample_buffer_size = block_provider.get_sample_rate() as f32 * block_provider.num_channels() as f32 * SAMPLE_TIME;
         let sample_buffer_size = sample_buffer_size as usize;
@@ -41,6 +41,16 @@ impl StreamingChannel{
         let audio_buffers = [Wave::new(buffer_0, format, false),
                             Wave::new(buffer_1, format, false)];
 
+        //Configure channel
+        let mut channel = ndsp.channel(channel_index).map_err(|_| AudioError::NdspChannelReference(channel_index))?;
+
+        let sample_rate = block_provider.get_sample_rate();
+        channel.set_sample_rate(sample_rate as f32);
+
+        channel.set_format(block_provider.get_audio_format());
+        channel.set_interpolation(InterpolationType::Linear);
+        channel.set_mix(&AudioMix::default());
+
         Ok(StreamingChannel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
                 channel_index,
@@ -54,15 +64,9 @@ impl StreamingChannel{
         )
     }
 
-    pub fn enqueue_buffers(&mut self,ndsp: &Ndsp) -> Result<(), AudioError>{
+    ///Enqueues front buffer and back buffer into the ndsp processor, which starts to play the audio
+    pub fn enqueue_buffers(&mut self, ndsp: &Ndsp) -> Result<(), AudioError>{
         let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;
-
-        let sample_rate = self.block_provider.get_sample_rate();
-        channel.set_sample_rate(sample_rate as f32);
-
-        channel.set_format(self.block_provider.get_audio_format());
-        channel.set_interpolation(InterpolationType::Linear);
-        channel.set_mix(&AudioMix::default());
 
         channel.queue_wave(&mut self.audio_buffers[0]).map_err(|_| AudioError::WaveEnqueue)?;
         channel.queue_wave(&mut self.audio_buffers[1]).map_err(|_| AudioError::WaveEnqueue)?;
