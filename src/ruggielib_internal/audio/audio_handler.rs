@@ -42,7 +42,10 @@ impl AudioHandler{
                     streamed_channel.check_for_update(&self.ndsp);
                 },
                 Some(Loaded(loaded_audio)) =>{
-
+                    //If finished, delete channel
+                    if loaded_audio.finished(){
+                        *channel = None;
+                    }
                 },
                 _ =>{}
             }
