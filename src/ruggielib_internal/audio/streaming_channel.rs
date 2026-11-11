@@ -6,7 +6,7 @@ use crate::audio::{block_provider::BlockProvider, constants::SAMPLE_TIME, errors
 /// 
 /// In the update method, the channel requests blocks from the audio_reader.
 
-pub struct Channel{
+pub struct StreamingChannel{
     ///Channel associated to the NDSP processor
     pub channel_index: u8,
 
@@ -19,7 +19,7 @@ pub struct Channel{
     current_buffer: usize
 }
 
-impl Channel{
+impl StreamingChannel{
     pub fn new(channel_index: u8, mut block_provider: BlockProvider) -> Result<Self, AudioError>{
         //Buffer size to hold information for SAMPLE_TIME time
         let sample_buffer_size = block_provider.get_sample_rate() as f32 * block_provider.num_channels() as f32 * SAMPLE_TIME;
@@ -32,8 +32,8 @@ impl Channel{
         let mut buffer_1: Vec<u8, LinearAllocator> = Vec::with_capacity_in(sample_buffer_size, LinearAllocator);
         buffer_1.resize_with(sample_buffer_size, || 0);
 
-        block_provider.fill_with_next_block(&mut buffer_0)?;
-        block_provider.fill_with_next_block(&mut buffer_1)?;
+        block_provider.fill_with_next_block(&mut buffer_0).map_err(|_| AudioError::ChannelUpdate)?;
+        block_provider.fill_with_next_block(&mut buffer_1).map_err(|_| AudioError::ChannelUpdate)?;
 
         let format = block_provider.get_audio_format();
 
@@ -41,7 +41,7 @@ impl Channel{
         let audio_buffers = [Wave::new(buffer_0, format, false),
                             Wave::new(buffer_1, format, false)];
 
-        Ok(Channel{
+        Ok(StreamingChannel{
                 //Get a reference to the NDSP channel. If it fails returns which channel failed
                 channel_index,
                 //Not audio reader selected
@@ -55,7 +55,7 @@ impl Channel{
     }
 
     pub fn enqueue_buffers(&mut self,ndsp: &Ndsp) -> Result<(), AudioError>{
-        let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::AudioChannelInitialization(self.channel_index))?;
+        let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;
 
         let sample_rate = self.block_provider.get_sample_rate();
         channel.set_sample_rate(sample_rate as f32);
@@ -83,7 +83,7 @@ impl Channel{
 
             //Fill the now back-buffer with the provider's next block
             let raw_buffer = self.audio_buffers[back_buffer_index].get_raw_buffer_mut().map_err(|_| AudioError::WaveBufferRef)?;
-            self.block_provider.fill_with_next_block(raw_buffer)?;
+            self.block_provider.fill_with_next_block(raw_buffer).map_err(|_| AudioError::ChannelUpdate)?;
 
             //Append the back-buffer to the channel
             let mut channel = ndsp.channel(self.channel_index).map_err(|_| AudioError::NdspChannelReference(self.channel_index))?;

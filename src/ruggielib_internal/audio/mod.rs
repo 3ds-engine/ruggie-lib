@@ -1,7 +1,7 @@
 pub mod errors;
 pub mod sound;
 pub mod streamed_sound;
-pub mod channel;
+pub mod streaming_channel;
 pub mod block_provider;
 pub mod audio_handler;
 pub mod constants;

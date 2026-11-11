@@ -6,9 +6,6 @@ pub enum AudioError {
     #[error("Could not initialize NDSP")]
     NdspInitialization,
 
-    #[error("Could not initialize Audio Channel")]
-    AudioChannelInitialization(u8),
-
     #[error("Could not reference NDSP Channel")]
     NdspChannelReference(u8),
 
@@ -21,8 +18,8 @@ pub enum AudioError {
     #[error("Could not obtain raw_buf_mut of wave")]
     WaveBufferRef,
 
-    #[error("Could not obtain next block audio")]
-    NextBlock,
+    #[error("Error when updating channel")]
+    ChannelUpdate,
 }
 
 #[derive(Error, Debug)]
@@ -33,9 +30,19 @@ pub enum SoundInitializationError{
     #[error("Could not stream audio in channel")]
     ChannelInitialization,
 
-    #[error("Could not initialize block provider")]
-    BlockProviderInitialization,
+    #[error("Could not initialize reader")]
+    ReaderInitialization,
 
     #[error("Extension not provided or not supported")]
     BadExtension,
 }
+
+#[derive(Error, Debug)]
+pub enum SoundReadingError{
+    #[error("Could not obtain next block audio")]
+    NextBlock,
+
+    #[error("Could not obtain next block audio")]
+    WholeSoundRead
+}
+

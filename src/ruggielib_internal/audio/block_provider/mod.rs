@@ -3,7 +3,7 @@ use std::{ffi::OsStr, fs::File, path::Path};
 use ctru::{linear::LinearAllocator, services::ndsp::AudioFormat};
 
 
-use crate::audio::{block_provider::{self, BlockProvider::{Mp3, Wav}, mp3_block_provider::Mp3BlockProvider, wav_block_provider::WavBlockProvider}, errors::{AudioError, SoundInitializationError::{self, BadExtension}}};
+use crate::audio::{block_provider::{BlockProvider::{Mp3, Wav}, mp3_block_provider::Mp3BlockProvider, wav_block_provider::WavBlockProvider}, errors::{SoundInitializationError::{self, BadExtension}, SoundReadingError}};
 
 pub mod mp3_block_provider;
 pub mod wav_block_provider;
@@ -16,18 +16,17 @@ pub enum BlockProvider{
 
 impl BlockProvider{
 
-    //Picked from symphonia's basic example
     pub fn new(path: &Path) -> Result<Self, SoundInitializationError>{
         //Load file as a handle
         let file = File::open(path).map_err(|_| SoundInitializationError::WrongPath)?;
 
         match path.extension().and_then(OsStr::to_str){
             Some("mp3") =>{
-                let bp = Mp3BlockProvider::new(file);
+                let bp = Mp3BlockProvider::new(file)?;
                 Ok(Mp3(bp))
             },
             Some("wav") => {
-                let bp = WavBlockProvider::new(file);
+                let bp = WavBlockProvider::new(file)?;
                 Ok(Wav(bp))
             }
             _ =>{
@@ -37,7 +36,7 @@ impl BlockProvider{
     }
 
     ///Fills the buffer with the next block. Returns false if the sound needs to be stopped
-    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) -> Result<(), AudioError>{
+    pub fn fill_with_next_block(&mut self, buffer: &mut Vec<u8, LinearAllocator>) -> Result<(), SoundReadingError>{
 
         //Unsafe fast cast from u8 to i16 without copying. Better to operate with i16 vector than with raw byte vector
         let pcm_slice_i16: &mut [i16] = unsafe {
@@ -71,6 +70,14 @@ impl BlockProvider{
         match self{
             Mp3(block_provider) => block_provider.num_channels(),
             Wav(block_provider) => block_provider.num_channels()
+        }
+    }
+
+    pub fn fill_with_whole_data(&mut self, buffer: &mut Vec<i16>) -> Result<(), SoundReadingError>{
+
+        match self{
+            Mp3(block_provider) => block_provider.fill_with_whole_data(buffer),
+            Wav(block_provider) => block_provider.fill_with_whole_data(buffer)
         }
     }
 }
