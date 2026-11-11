@@ -1,3 +1,9 @@
+/// Time module
+/// 
+/// This has all methods that have to do with time
+pub mod time;
+use time::TimeHandler;
+
 /// `RuggieLib` errors
 ///
 /// This contains all errors that `RuggieLib`'s base functionality can return in Results
@@ -57,11 +63,14 @@ use ctru::{prelude::*, services::romfs::RomFS};
 /// frist, you may encounter undefined behaviour. **THIS STRUCT SHOULD BE THE FIRST THING YOU CREATE IN YOUR
 /// PROGRAM**
 pub struct RuggieLib {
+
     // Base tools
     apt: Apt,
     hid: Hid,
     gfx: Gfx,
     audio_handler: AudioHandler,
+    pub time: TimeHandler,
+
     // Screens
     pub top_left_screen: RuggieScreenTarget,
     pub top_right_screen: RuggieScreenTarget,
@@ -85,6 +94,7 @@ impl RuggieLib {
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
         let audio_handler = AudioHandler::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
+        let time = TimeHandler::new();
 
         unsafe {
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE as usize);
@@ -101,6 +111,7 @@ impl RuggieLib {
             hid,
             gfx,
             audio_handler,
+            time,
             top_left_screen,
             top_right_screen,
             bottom_screen,
