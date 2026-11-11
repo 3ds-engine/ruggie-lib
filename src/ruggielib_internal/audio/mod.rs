@@ -24,7 +24,8 @@ impl RuggieLib{
     }
 
     pub fn play_sound(&mut self, sound: &Sound){
-        self.audio_handler.play_sound(sound)
+        
+        self.audio_handler.play_sound(sound, 1);
     }
     /*
     pub fn load_streamed_sound(&self) -> Result<StreamedSound, AudioError>{

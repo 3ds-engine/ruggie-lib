@@ -3,13 +3,16 @@ name = "ruggie-lib"
 version = "0.1.0"
 edition = "2024"
 
+[toolchain]
+channel = "nightly-2026-03-30"
+
 [dependencies]
 citro3d-sys = { git = "https://github.com/rust3ds/citro3d-rs.git", package = "citro3d-sys" }
 citro2d-sys = { git = "https://git.sr.ht/~sheepy/citro2d-rs", package = "citro2d-sys" }
 ctru-rs = { git = "https://github.com/rust3ds/ctru-rs", features = ["romfs"] }
 ctru-sys = { git = "https://github.com/rust3ds/ctru-rs" }
 
-thiserror = "2.0.21"
+thiserror = "2.0.18"
 
 nanomp3 = "0.2.0"
 hound = "3.5.1"

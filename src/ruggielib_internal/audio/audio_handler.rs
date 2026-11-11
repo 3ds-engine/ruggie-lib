@@ -1,8 +1,8 @@
-use std::{collections::HashMap, path::Path, rc::{Rc, Weak}};
+use std::{collections::HashMap, path::Path, rc::Rc};
 
 use ctru::{linear::LinearAllocator, services::ndsp::{Ndsp, OutputMode}};
 
-use crate::audio::{block_provider::BlockProvider, channel::streaming_channel::StreamingChannel, errors::{AudioError, SoundInitializationError}, loaded_audio::{self, LoadedAudio}, sound::Sound};
+use crate::audio::{block_provider::BlockProvider, channel::{Channel::{self, Loaded, Streamed}, loaded_channel::LoadedChannel, streaming_channel::StreamingChannel}, errors::{AudioError, SoundInitializationError}, loaded_audio::{self, LoadedAudio}, sound::Sound};
 
 ///Number of channels available of NDSP
 const NUMBER_OF_CHANNELS: usize = 24;
@@ -13,7 +13,7 @@ pub struct AudioHandler{
     loaded_sounds: HashMap<String, LoadedAudio>,
     ///Available channels in runtime.
     ///Must always be in the same spot of memory because of Ndsp's Wave reading
-    audio_channels: Vec<Option<StreamingChannel>>,
+    audio_channels: Vec<Option<Channel>>,
 }
 
 impl AudioHandler{
@@ -23,7 +23,7 @@ impl AudioHandler{
         ndsp.set_output_mode(OutputMode::Stereo);
 
         //No channels being used
-        let mut audio_channels: Vec<Option<StreamingChannel>> = Vec::with_capacity(NUMBER_OF_CHANNELS);
+        let mut audio_channels: Vec<Option<Channel>> = Vec::with_capacity(NUMBER_OF_CHANNELS);
         audio_channels.resize_with(NUMBER_OF_CHANNELS, || None);
 
         Ok(AudioHandler {
@@ -33,43 +33,57 @@ impl AudioHandler{
         })
     }
 
-    ///Init the channel number __channel_index__ with the block provider
-    pub fn init_channel(&mut self, channel_index: u8, block_provider: BlockProvider) -> Result<(), AudioError>{
+    ///Check if any audio channels need another block
+    pub fn update_channels(&mut self){
+        for channel in &mut self.audio_channels.iter_mut(){
+            //Checks if channel is being used
+            match channel{
+                Some(Streamed(streamed_channel)) =>{
+                    streamed_channel.check_for_update(&self.ndsp);
+                },
+                Some(Loaded(loaded_audio)) =>{
+
+                },
+                _ =>{}
+            }
+        }
+    }
+
+    pub fn play_streamed_sound(&mut self, path: &str, channel_index: u8) -> Result<(), AudioError> {
+        //Initialize the audio reader for the file
+        let block_provider = BlockProvider::new(Path::new(path)).map_err(|_| AudioError::ChannelUpdate)?;
+        //Append that reader to the specified channel
         if self.audio_channels[channel_index as usize].is_some(){
             return Err(AudioError::WrongChannelIndex)
         }
-        self.audio_channels[channel_index as usize] = Some(StreamingChannel::new(channel_index, block_provider, &mut self.ndsp)?);
+
+        let streaming_channel = StreamingChannel::new(channel_index, block_provider, &mut self.ndsp)?;
+        self.audio_channels[channel_index as usize] = Some(Channel::Streamed(streaming_channel));
 
         //To enqueue the buffers, they need to be in their final place of the memory. No moving is done this way
-        if let Some(ref mut channel) = self.audio_channels[channel_index as usize]{
+        if let Some(Streamed(ref mut channel)) = self.audio_channels[channel_index as usize]{
             channel.enqueue_buffers(&self.ndsp)?;
         }
 
         Ok(())
     }
-    
-    ///Check if any audio channels need another block
-    pub fn update_channels(&mut self){
-        for channel in &mut self.audio_channels.iter_mut(){
-            //Checks if channel is being used
-            if let Some(channel) = channel{
-                //Check if the buffers need swap and fill
-                channel.check_for_update(&self.ndsp);
+
+    pub fn play_sound(&mut self, sound: &Sound, channel_index: u8) -> Result<(), AudioError>{
+        if let Some(loaded_sound) = self.loaded_sounds.get(&sound.path){
+            
+            if self.audio_channels[channel_index as usize].is_some(){
+                return Err(AudioError::WrongChannelIndex)
+            }
+            
+            let loaded_channel = LoadedChannel::new(channel_index, loaded_sound, &mut self.ndsp)?;
+
+            self.audio_channels[channel_index as usize] = Some(Loaded(loaded_channel));
+
+            if let Some(Loaded(ref mut loaded_channel)) = self.audio_channels[channel_index as usize]{
+                loaded_channel.enqueue_buffer(&self.ndsp);
             }
         }
-    }
-
-    pub fn play_streamed_sound(&mut self, path: &str, channel_index: u8) -> Result<(), SoundInitializationError> {
-        //Initialize the audio reader for the file
-        let block_provider = BlockProvider::new(Path::new(path))?;
-        //Append that reader to the specified channel
-        self.init_channel(channel_index, block_provider).map_err(|_| SoundInitializationError::ChannelInitialization)?;
-
         Ok(())
-    }
-
-    pub fn play_sound(&mut self, sound: &Sound){
-
     }
 
     pub fn load_sound(&mut self, path: &str) -> Result<Sound, SoundInitializationError>{
@@ -78,30 +92,39 @@ impl AudioHandler{
             match loaded_audio.handle_counter.upgrade(){
                 //If there are another handles existing, return a copy
                 Some(rc_handle) =>{
-                    return Ok(Sound(rc_handle.clone()))
+                    return Ok(Sound{
+                        handle: rc_handle.clone(),
+                        path: path.to_string()
+                    })
                 },
                 //If there are no more handles, user requested a sound that was about to be deleted, so we create a new handle and pass it to prevent deletion
                 None =>{
                     let rc_handle = Rc::new(());
                     loaded_audio.handle_counter = Rc::downgrade(&rc_handle);
-                    return Ok(Sound(rc_handle))
+                    return Ok(Sound{
+                        handle: rc_handle,
+                        path: path.to_string()
+                    })
                 }
             }
         }
-        //If the audio is not loaded, create it and pass the handle
 
+        //If the audio is not loaded, create it and pass the handle
         let mut block_provider = BlockProvider::new(Path::new(path))?;
         let buffer_rc = Self::load_buffered_sound(&mut block_provider)?;
-        let handle_rc = Rc::new(());
+        let rc_handle = Rc::new(());
         let loaded_audio = LoadedAudio{
             buffer: buffer_rc,
             block_provider,
-            handle_counter: Rc::downgrade(&handle_rc)
+            handle_counter: Rc::downgrade(&rc_handle)
         };
         
         self.loaded_sounds.insert(path.to_string(), loaded_audio);
 
-        Ok(Sound(handle_rc))
+        Ok(Sound{
+            handle: rc_handle,
+            path: path.to_string()
+        })
     }
 
     ///Returns an Rc with a buffer filled with the audio information from path
