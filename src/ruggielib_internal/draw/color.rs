@@ -46,11 +46,7 @@ impl Color {
     /// ```
     #[must_use]
     pub const fn from_hex(hex: u32) -> Self {
-        let r = ((hex >> 24) & 0xFF) as u8;
-        let g = ((hex >> 16) & 0xFF) as u8;
-        let b = ((hex >> 8) & 0xFF) as u8;
-        let a = (hex & 0xFF) as u8;
-
+        let [r, g, b, a] = hex.to_be_bytes();
         Self { r, g, b, a }
     }
 }
