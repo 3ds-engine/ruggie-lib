@@ -3,9 +3,6 @@ name = "ruggie-lib"
 version = "0.1.0"
 edition = "2024"
 
-[toolchain]
-channel = "nightly-2026-03-30"
-
 [dependencies]
 citro3d-sys = { git = "https://github.com/rust3ds/citro3d-rs.git", package = "citro3d-sys" }
 citro2d-sys = { git = "https://git.sr.ht/~sheepy/citro2d-rs", package = "citro2d-sys" }
@@ -16,6 +13,10 @@ thiserror = "2.0.18"
 
 nanomp3 = "0.2.0"
 hound = "3.5.1"
+
+[patch."https://github.com/rust3ds/ctru-rs"]
+ctru-rs = { path = "dependencies/ctru-rs/ctru-rs" }
+ctru-sys = { path = "dependencies/ctru-rs/ctru-sys" }
 
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
