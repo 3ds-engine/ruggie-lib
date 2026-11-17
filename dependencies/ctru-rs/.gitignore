@@ -1,0 +1,8 @@
+target
+Cargo.lock
+.cargo
+
+# IDE files
+.idea
+.vscode
+.zed
