@@ -150,17 +150,17 @@ impl Ndsp {
     /// # Ok(())
     /// # }
     /// ```
-    #[doc(alias = "ndspInit")]
+    #[doc(alias = "opendspInit")]
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
             || {
-                ResultCode(unsafe { ctru_sys::ndspInit() })?;
+                ResultCode(unsafe { opendsp_sys::opendspInit() })?;
 
                 Ok(())
             },
             || unsafe {
-                ctru_sys::ndspExit();
+                opendsp_sys::opendspExit();
             },
         )?;
 
@@ -786,7 +786,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {}
 
 impl Drop for Ndsp {
-    #[doc(alias = "ndspExit")]
+    #[doc(alias = "opendspExit")]
     fn drop(&mut self) {
         for i in 0..NUMBER_OF_CHANNELS {
             self.channel(i).unwrap().reset();
