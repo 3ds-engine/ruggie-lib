@@ -1,5 +1,5 @@
 #![feature(custom_test_frameworks)]
-#![feature(allocator_api)]
+#![feature(allocator_ext)]
 #![feature(clone_from_ref)]
 #![test_runner(test_runner::run_console)]
 

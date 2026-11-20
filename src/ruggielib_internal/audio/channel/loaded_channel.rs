@@ -6,13 +6,17 @@ use crate::audio::{errors::AudioError, loaded_audio::LoadedAudio};
 
 pub struct LoadedChannel{
     channel_index: u8,
-    wave: Wave<Rc<[u8], LinearAllocator>>
+    wave: Wave<Vec<u8, LinearAllocator>>
 }
 
 impl LoadedChannel{
     pub fn new(channel_index: u8, loaded_audio: &LoadedAudio, ndsp: &mut Ndsp) -> Result<Self, AudioError>{
+        let mut slice = Vec::new_in(LinearAllocator);
+        slice.resize(loaded_audio.buffer.len(), 0);
+        slice.copy_from_slice(loaded_audio.buffer.to_owned().as_slice());
+        
         //Wave creation
-        let wave = Wave::new(loaded_audio.buffer.clone(), loaded_audio.block_provider.get_audio_format(), false);
+        let wave = Wave::new(slice, loaded_audio.block_provider.get_audio_format(), false);
 
         //Channel_initialization
         let mut channel = ndsp.channel(channel_index).map_err(|_| AudioError::NdspChannelReference(channel_index))?;

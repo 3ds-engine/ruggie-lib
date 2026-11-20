@@ -14,15 +14,6 @@ thiserror = "2.0.18"
 nanomp3 = "0.2.0"
 hound = "3.5.1"
 
-[patch."https://github.com/rust3ds/ctru-rs"]
-ctru-rs = { path = "dependencies/ctru-rs/ctru-rs" }
-ctru-sys = { path = "dependencies/ctru-rs/ctru-sys" }
-
-# Si alguna librería secundaria tira de crates.io, incluye también este bloque:
-[patch.crates-io]
-ctru-rs = { path = "dependencies/ctru-rs/ctru-rs" }
-ctru-sys = { path = "dependencies/ctru-rs/ctru-sys" }
-
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
