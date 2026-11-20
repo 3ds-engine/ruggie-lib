@@ -28,7 +28,7 @@ use screen::RuggieScreenTarget;
 ///
 /// Contains all the optional functionality that `RuggieLib` may have if the user decides to enable it
 pub mod features;
-use crate::{audio::audio_handler::AudioHandler, features::console::RuggieConsole};
+use crate::{audio::ruggie_audio_handle::RuggieAudioHandle, features::console::RuggieConsole};
 
 /// The input module
 ///
@@ -68,7 +68,7 @@ pub struct RuggieLib {
     apt: Apt,
     hid: Hid,
     gfx: Gfx,
-    audio_handler: AudioHandler,
+    audio_handler: RuggieAudioHandle,
     pub time: TimeHandler,
 
     // Screens
@@ -93,7 +93,7 @@ impl RuggieLib {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
-        let audio_handler = AudioHandler::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
+        let ruggie_audio_handle = RuggieAudioHandle::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
         let time = TimeHandler::new();
 
         unsafe {
@@ -110,7 +110,7 @@ impl RuggieLib {
             apt,
             hid,
             gfx,
-            audio_handler,
+            audio_handler: ruggie_audio_handle,
             time,
             top_left_screen,
             top_right_screen,
