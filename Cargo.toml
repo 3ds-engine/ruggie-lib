@@ -12,9 +12,6 @@ opendsp-sys = { git = "https://github.com/3ds-engine/opendsp-sys" }
 
 thiserror = "2.0.18"
 
-nanomp3 = "0.2.0"
-hound = "3.5.1"
-
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
