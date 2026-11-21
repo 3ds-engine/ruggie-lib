@@ -1,10 +1,5 @@
-/// Color representation and creation
 pub mod color;
-
-/// Sprite representation and creation
 pub mod sprite;
-
-/// Spritesheet representation and creation
 pub mod sprite_sheet;
 
 use citro2d_sys::{
@@ -13,193 +8,164 @@ use citro2d_sys::{
 };
 use citro3d_sys::{C3D_FRAME_SYNCDRAW, C3D_FrameBegin, C3D_FrameEnd};
 
-use crate::{RuggieLib, draw::sprite::Sprite, screen::RuggieScreenTarget};
+use crate::{RuggieLib, draw::sprite::Sprite};
 use color::Color;
 
-/// The API for 2D rendering in the 3DS
-///
-/// It holds functionality to draw 2D shapes, 2D outlines, 2D sprites, 2D primitives and clearing
-/// the screen.
-///
-/// This struct operates like a state machine. When it's created it is rendering on the top-left
-/// screen. You can use functions named `draw_<screen>()` to switch the target screen for rendering
-///
-/// # Example
-/// ```
-/// let rl = RuggieLib::new().unwrap
-/// while(rl.is_running()) {
-///     rl.wait_for_vblank();
-///     let render = rl.start_drawing();
-///
-///     // Top left screen
-///     rl.clear_screen(Color::white());
-///     rl.draw_circle(100.0, 100.0, 50.0, Color::red());
-///
-///     // Bottom Screen
-///     rl.draw_bottom();
-///     rl.clear_screen(Color::white())
-/// }
-/// ```
-pub struct RuggieDrawHandle<'a> {
-    lib: &'a mut RuggieLib,
-    current_screen: *const RuggieScreenTarget,
-}
-
-/// Creation of the Handle
-///
-/// This is meant to be accessed from `RuggieLib`'s `start_drawing()` method
-impl<'a> RuggieDrawHandle<'a> {
-    pub fn new(lib: &'a mut RuggieLib) -> Self {
-        let current_screen = &raw const lib.top_left_screen;
-
-        // SAFETY: Calling ffi initialization functions is safe as long as they are deinitialized in
-        // the drop function of the object
+impl RuggieLib {
+    /// Initialize the drawing capabilities for this frame
+    ///
+    /// # Important
+    /// This function **must be called before using any functionality of the library that renders to
+    /// the screen**, otherwise each and every one of those function calls will be undefined behaviour
+    ///
+    /// Also, if this function is called, end_drawing must be called after the last drawing
+    /// instruction. It is recommended to wrap this calls in a struct that manages them using
+    /// lifetimes, via implementing the Default and Drop traits
+    ///
+    /// # Example
+    /// ```
+    /// let rl = RuggieLib::new().unwrap();
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_vblank();
+    ///
+    ///     // Rendering loop starts (does not need to be a block)
+    ///     {
+    ///         rl.begin_drawing();
+    ///         render.clear_screen(Color::white());
+    ///         render.draw_rectangle(0.0, 0.0, 100.0, 100.0, Color::red());
+    ///         rl.end_drawing() // This is mandatory
+    ///     }
+    /// }
+    /// ```
+    pub fn begin_drawing(&self) {
+        // SAFETY: Calling ffi initialization functions is safe as long as they are deinitialized
+        // after a call to end_drawing
         unsafe {
             C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
             // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
             // never mutate after they are built, so using them while having a valid mutable
             // reference to RuggieLib ensures the pointer is valid and can't be mutated
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
-        }
-
-        Self {
-            lib,
-            current_screen,
+            C2D_SceneBegin(self.screens[self.current_screen_index].get_target_raw_mut());
         }
     }
-}
 
-/// Private utilities
-#[doc(hidden)]
-impl RuggieDrawHandle<'_> {
-    fn c2d_color(color: Color) -> u32 {
+    /// Present to the screen and unitiliaze the rendering capabilities
+    ///
+    /// # Important
+    /// This function should **only be called after calling begin_drawing**, otherwise it will
+    /// trigger undefined behaviour
+    pub fn end_drawing(&self) {
+        // SAFETY: Calling ffi deinitialization is only safe as long as begin_drawing was called
+        // before calling this function, otherwise it is UNDEFINED BEHAVIOUR
         unsafe {
-            // SAFETY: This function does simple arithmetic to get a u32 from the four u8 fields of
-            // a color. Calling it is always safe
-            C2D_Color32(color.r, color.g, color.b, color.a)
+            C3D_FrameEnd(0);
         }
     }
-}
 
-/// Screen switching and information
-impl RuggieDrawHandle<'_> {
-    /// Switches the target screen for all render functionality to be the top left screen
-    pub fn draw_top_left(&mut self) {
-        let current_screen = &raw const self.lib.top_left_screen;
-        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-        // never mutate after they are built, so using them while having a valid mutable
-        // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
-        }
-
-        self.current_screen = current_screen;
-    }
-
-    /// Switches the target screen for all render functionality to be the top right screen
-    pub fn draw_top_right(&mut self) {
-        let current_screen = &raw const self.lib.top_right_screen;
-        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-        // never mutate after they are built, so using them while having a valid mutable
-        // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
-        }
-
-        self.current_screen = current_screen;
-    }
-
-    /// Switches the target screen for all render functionality to be the bottom screen
-    pub fn draw_bottom(&mut self) {
-        let current_screen = &raw const self.lib.bottom_screen;
-
-        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-        // never mutate after they are built, so using them while having a valid mutable
-        // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe {
-            C2D_SceneBegin(current_screen.as_ref_unchecked().get_screen_raw_mut());
-        }
-
-        self.current_screen = current_screen;
-    }
-
-    /// Gets the width of the target screen
-    #[must_use]
-    pub const fn screen_witdh(&self) -> u32 {
-        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-        // never mutate after they are built, so using them while having a valid mutable
-        // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe { self.current_screen.as_ref_unchecked().width() }
-    }
-
-    /// Gets the height of the target screen
-    #[must_use]
-    pub const fn screen_height(&self) -> u32 {
-        // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-        // never mutate after they are built, so using them while having a valid mutable
-        // reference to RuggieLib ensures the pointer is valid and can't be mutated
-        unsafe { self.current_screen.as_ref_unchecked().height() }
-    }
-
-    /// Gets the dimensions of the target screen in a (width, height) tuple
+    /// Waits until screen renderer is drawing vblank.
+    ///
+    /// Used to apply vsync to frame rendering. Should be used before rendering anything to screen
     ///
     /// # Example
     ///
     /// ```
-    /// let (witdh, height) = render.screen_dimensions();
-    /// assert_eq!(width, render.screen_width());
-    /// assert_eq!(height, render.screen_height());
+    /// let rl = RuggieLib::new().unwrap();
+    /// while(rl.is_running()) {
+    ///     rl.wait_for_blank();
+    ///     rl.begin_drawing();
+    ///     // Your render code here
+    ///     rl.end_drawing();
+    /// }
     /// ```
-    #[must_use]
-    pub const fn screen_dimensions(&self) -> (u32, u32) {
-        (self.screen_witdh(), self.screen_height())
+    pub fn wait_for_vblank(&self) {
+        self.gfx.wait_for_vblank();
     }
 }
 
-/// Screen clearing
-impl RuggieDrawHandle<'_> {
+#[doc(hidden)]
+fn c2d_color(color: Color) -> u32 {
+    unsafe {
+        // SAFETY: This function does simple arithmetic to get a u32 from the four u8 fields of
+        // a color. Calling it is always safe
+        C2D_Color32(color.r, color.g, color.b, color.a)
+    }
+}
+
+impl RuggieLib {
+    #[doc(hidden)]
+    unsafe fn scene_begin(&self) {
+        // SAFETY: Dereferencing the current screen is safe as long as begin_drawing was called 
+        // because inside RuggieLib, screens never mutate after they are built
+        unsafe {
+            C2D_SceneBegin(self.screens[self.current_screen_index].get_target_raw_mut());
+        }
+    }
+
+    /// Switches the target screen for all render functionality to be the top left screen
+    pub fn draw_top_left(&mut self) {
+        self.current_screen_index = 0usize;
+        unsafe {
+            self.scene_begin();
+        }
+    }
+
+    /// Switches the target screen for all render functionality to be the top right screen
+    pub fn draw_top_right(&mut self) {
+        self.current_screen_index = 1usize;
+        unsafe {
+            self.scene_begin();
+        }
+    }
+
+    /// Switches the target screen for all render functionality to be the bottom screen
+    pub fn draw_bottom(&mut self) {
+        self.current_screen_index = 2usize;
+        unsafe {
+            self.scene_begin();
+        }
+    }
+}
+
+impl RuggieLib {
     /// Clears the target screen with the given render color
     pub fn clear_screen(&mut self, clear_color: Color) {
         unsafe {
-            // SAFETY: The only way to call this ffi function is by creating an instance of
-            // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+            // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+            // Otherwise it is undefined behaviour
             C2D_TargetClear(
                 // SAFETY: Dereferencing the current screen is safe because inside RuggieLib, screens
-                // never mutate after they are built, so using them while having a valid mutable
-                // reference to RuggieLib ensures the pointer is valid and can't be mutated
-                self.current_screen.as_ref_unchecked().get_screen_raw_mut(),
+                // never mutate after they are built                
+                self.screens[self.current_screen_index].get_target_raw_mut(),
                 C2D_Color32(clear_color.r, clear_color.g, clear_color.b, clear_color.a),
             );
         }
     }
 }
 
-/// 2D Primitives
-impl RuggieDrawHandle<'_> {
+impl RuggieLib {
     /// Draws a line from point (x0, y0) to point (x1, y1), with a thickness of `thickness` pixels
     /// and a given color
     pub fn draw_line(&self, x0: f32, y0: f32, x1: f32, y1: f32, thickness: u16, color: Color) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
 
-        // SAFETY: The only way to call this ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
         }
     }
 }
 
-/// 2D Shapes
-impl RuggieDrawHandle<'_> {
+impl RuggieLib {
     /// Draws a rectangle.
     ///
     /// Its top-left corner will be situated at (x, y)
     pub fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
 
-        // SAFETY: The only way to call this ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawRectSolid(x, y, 0.0, w, h, color);
         }
@@ -219,10 +185,10 @@ impl RuggieDrawHandle<'_> {
         y2: f32,
         color: Color,
     ) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
 
-        // SAFETY: The only way to call this ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawTriangle(x0, y0, color, x1, y1, color, x2, y2, color, 0.0);
         }
@@ -232,10 +198,10 @@ impl RuggieDrawHandle<'_> {
     ///
     /// Its center will be situated at (x, y)
     pub fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
 
-        // SAFETY: The only way to call this ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawCircleSolid(x, y, 0.0, r, color);
         }
@@ -246,10 +212,10 @@ impl RuggieDrawHandle<'_> {
     /// Its center will be situated at (x, y), rx will be it's x-axis radius and ry will be its
     /// y-axis radius
     pub fn draw_ellipse(&self, x: f32, y: f32, rx: f32, ry: f32, color: Color) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
 
-        // SAFETY: The only way to call this ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling this ffi function is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawEllipseSolid(
                 x - (rx / 2.0),
@@ -263,8 +229,7 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-/// 2D Outlines
-impl RuggieDrawHandle<'_> {
+impl RuggieLib {
     /// Draws the outline of a rectangle
     ///
     /// The logistics of its position are the same that its full shape analog
@@ -277,9 +242,9 @@ impl RuggieDrawHandle<'_> {
         thickness: u16,
         color: Color,
     ) {
-        let color = Self::c2d_color(color);
-        // SAFETY: The only way to call these ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        let color = c2d_color(color);
+        // SAFETY: Calling these ffi functions is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawLine(x, y, color, x + w, y, color, thickness.into(), 0.0);
             C2D_DrawLine(x + w, y, color, x + w, y + h, color, thickness.into(), 0.0);
@@ -302,9 +267,9 @@ impl RuggieDrawHandle<'_> {
         thickness: u16,
         color: Color,
     ) {
-        let color = Self::c2d_color(color);
-        // SAFETY: The only way to call these ffi function is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        let color = c2d_color(color);
+        // SAFETY: Calling these ffi functions is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             C2D_DrawLine(x0, y0, color, x1, y1, color, thickness.into(), 0.0);
             C2D_DrawLine(x1, y1, color, x2, y2, color, thickness.into(), 0.0);
@@ -324,11 +289,11 @@ impl RuggieDrawHandle<'_> {
         thickness: u16,
         color: Color,
     ) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
         let angle_step = 2.0 * std::f32::consts::PI / f32::from(sides);
 
-        // SAFETY: The only way to call these ffi functions is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling these ffi functions is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             for i in 0..sides {
                 let a0 = angle_step * f32::from(i);
@@ -357,11 +322,11 @@ impl RuggieDrawHandle<'_> {
         thickness: u16,
         color: Color,
     ) {
-        let color = Self::c2d_color(color);
+        let color = c2d_color(color);
         let angle_step = 2.0 * std::f32::consts::PI / f32::from(sides);
 
-        // SAFETY: The only way to call these ffi functions is by creating an instance of
-        // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+        // SAFETY: Calling these ffi functions is safe as long as begin_drawing was called.
+        // Otherwise it is undefined behaviour
         unsafe {
             for i in 0..sides {
                 let a0 = angle_step * f32::from(i);
@@ -378,35 +343,17 @@ impl RuggieDrawHandle<'_> {
     }
 }
 
-/// 2D Sprites
-impl RuggieDrawHandle<'_> {
-    /// Draws a sprite
-    ///
-    /// The position of its pivot will be located at (x, y). You can change the pivot of a sprite
-    /// using `set_pivot()`
+impl RuggieLib {
     pub fn draw_sprite(&self, sprite: &mut Sprite, x: f32, y: f32) {
         unsafe {
             // SAFETY: Dereferencing a raw sprite can be unsafe, only if the user creates the raw
             // sprite themselves, otherwise it is impossible to create an invalid sprite
             let raw_sprite = sprite.get_raw_mut();
 
-            // SAFETY: The only way to call these ffi functions is by creating an instance of
-            // RuggieDrawHandle and, therefore, calling the citro2d and citro3d initializers
+            // SAFETY: Calling these ffi functions is safe as long as begin_drawing was called.
+            // Otherwise it is undefined behaviour
             C2D_SpriteSetPos(raw_sprite, x, y);
             C2D_DrawSprite(raw_sprite);
-        }
-    }
-}
-
-/// Destruction
-///
-/// This ensures that the resources acquired by `RuggieDrawHandle` are freed when it is dropped
-impl Drop for RuggieDrawHandle<'_> {
-    fn drop(&mut self) {
-        // SAFETY: Calling ffi deinitialization is always save as long as the only way to obtain a
-        // RuggieDrawHandle is by calling initialization
-        unsafe {
-            C3D_FrameEnd(0);
         }
     }
 }

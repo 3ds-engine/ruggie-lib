@@ -97,7 +97,7 @@ impl RuggieScreenTarget {
 
     #[doc(hidden)]
     #[must_use]
-    pub const unsafe fn get_screen_raw_mut(&self) -> *mut C3D_RenderTarget {
+    pub const unsafe fn get_target_raw_mut(&self) -> *mut C3D_RenderTarget {
         // Accesing the screen as a raw pointer can deref it and therefore it is not safe
         self.screen
     }

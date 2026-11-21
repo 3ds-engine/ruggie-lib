@@ -1,5 +1,5 @@
 /// Time module
-/// 
+///
 /// This has all methods that have to do with time
 pub mod time;
 use time::TimeHandler;
@@ -12,10 +12,9 @@ use errors::RuggieLibCreationError;
 
 /// The module for drawing 2D graphics on screen
 ///
-/// This module holds not only the `RuggieDrawHandle` for drawing on screen but also important modules for
-/// rendering like color, `sprite` and `sprite_sheet`
+/// This module holds not only the functionality for drawing on screen but also important resource modules 
+/// for rendering like `color`, `sprite` and `sprite_sheet`
 pub mod draw;
-use draw::RuggieDrawHandle;
 
 /// The `ScreenTarget` module
 ///
@@ -63,7 +62,6 @@ use ctru::{prelude::*, services::romfs::RomFS};
 /// frist, you may encounter undefined behaviour. **THIS STRUCT SHOULD BE THE FIRST THING YOU CREATE IN YOUR
 /// PROGRAM**
 pub struct RuggieLib {
-
     // Base tools
     apt: Apt,
     hid: Hid,
@@ -72,9 +70,11 @@ pub struct RuggieLib {
     pub time: TimeHandler,
 
     // Screens
-    pub top_left_screen: RuggieScreenTarget,
-    pub top_right_screen: RuggieScreenTarget,
-    pub bottom_screen: RuggieScreenTarget,
+    // 0: top_left
+    // 1: top_right
+    // 2: bottom
+    screens: [RuggieScreenTarget; 3],
+    current_screen_index: usize,
 
     // Features
     romfs: Option<RomFS>,
@@ -93,7 +93,8 @@ impl RuggieLib {
         let apt = Apt::new().map_err(|_| RuggieLibCreationError::FailedApt)?;
         let hid = Hid::new().map_err(|_| RuggieLibCreationError::FailedHid)?;
         let gfx = Gfx::new().map_err(|_| RuggieLibCreationError::FailedGfx)?;
-        let ruggie_audio_handle = RuggieAudioHandle::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
+        let ruggie_audio_handle =
+            RuggieAudioHandle::new().map_err(|_| RuggieLibCreationError::FailedAudioHandler)?;
         let time = TimeHandler::new();
 
         unsafe {
@@ -105,6 +106,7 @@ impl RuggieLib {
         let top_left_screen = RuggieScreenTarget::new_top_left();
         let top_right_screen = RuggieScreenTarget::new_top_right();
         let bottom_screen = RuggieScreenTarget::new_bottom();
+        let screens = [top_left_screen, top_right_screen, bottom_screen];
 
         Ok(Self {
             apt,
@@ -112,33 +114,11 @@ impl RuggieLib {
             gfx,
             audio_handler: ruggie_audio_handle,
             time,
-            top_left_screen,
-            top_right_screen,
-            bottom_screen,
+            screens,
+            current_screen_index: 0usize,
             romfs: None,
             console: None,
         })
-    }
-
-    /// Get access to the draw handle
-    ///
-    /// While the draw handle is in use, you lose access to `RuggieLib`'s API because `RuggieDrawHandle`
-    /// takes a mutable reference of `RuggieLib`. This is meant as a restriction: **the rendering
-    /// process should be done in one step, and rendering should be independent of any of the
-    /// library's other utilities**
-    ///
-    /// # Example
-    /// ```
-    /// let rl = RuggieLib::new().unwrap();
-    /// while(rl.is_running()) {
-    ///     rl.wait_for_vblank();
-    ///     let mut render = rl.start_drawing();
-    ///     render.clear_screen(Color::white());
-    ///     render.draw_rectangle(0.0, 0.0, 100.0, 100.0, Color::red());
-    /// }
-    /// ```
-    pub fn start_drawing(&mut self) -> RuggieDrawHandle<'_> {
-        RuggieDrawHandle::new(self)
     }
 
     /// Check if the application is still running
@@ -157,21 +137,30 @@ impl RuggieLib {
         self.apt.main_loop()
     }
 
-    /// Waits until screen renderer is drawing vblank.
-    ///
-    /// Used to apply vsync to frame rendering. Should be used before rendering anything to screen
+    /// Gets the width of the target screen
+    #[must_use]
+    pub const fn screen_witdh(&self) -> u32 {
+        self.screens[self.current_screen_index].width()
+    }
+
+    /// Gets the height of the target screen
+    #[must_use]
+    pub const fn screen_height(&self) -> u32 {
+        self.screens[self.current_screen_index].height()
+    }
+
+    /// Gets the dimensions of the target screen in a (width, height) tuple
     ///
     /// # Example
     ///
     /// ```
-    /// let rl = RuggieLib::new().unwrap();
-    /// while(rl.is_running()) {
-    ///     rl.wait_for_blank();
-    ///     // Your render code here
-    /// }
+    /// let (witdh, height) = rl.screen_dimensions();
+    /// assert_eq!(width, rl.screen_width());
+    /// assert_eq!(height, rl.screen_height());
     /// ```
-    pub fn wait_for_vblank(&self) {
-        self.gfx.wait_for_vblank();
+    #[must_use]
+    pub const fn screen_dimensions(&self) -> (u32, u32) {
+        (self.screen_witdh(), self.screen_height())
     }
 }
 
