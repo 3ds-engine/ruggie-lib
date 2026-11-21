@@ -1,18 +1,27 @@
-use crate::{RuggieLib, audio::sound::Sound};
+use crate::{RuggieLib, audio::streamed_sound::StreamedSound};
 
 pub mod ruggie_audio_handle;
 pub mod sound;
+pub mod streamed_sound;
 pub mod errors;
 
 impl RuggieLib{
 
     
-    pub fn load_sound(&mut self, path: &str){
-
+    pub fn load_streamed_sound(&mut self, path: &str) -> std::result::Result<StreamedSound, ()>{
+        self.audio_handler.load_streamed_sound(path)
     }
 
-    pub fn play_sound(&mut self, sound: &str) -> std::result::Result<(),()>{
-        self.audio_handler.play_audio(sound)
+    pub fn play_streamed_sound(&mut self, streamed_sound: &StreamedSound) -> std::result::Result<(),()>{
+        self.audio_handler.play_streamed_audio(streamed_sound)
+    }
+
+    pub fn pause_streamed_sound(&mut self, streamed_sound: &StreamedSound) -> std::result::Result<(),()>{
+        self.audio_handler.pause_streamed_audio(streamed_sound)
+    }
+
+    pub fn is_sound_paused(&self, streamed_sound: &StreamedSound) -> bool{
+        self.audio_handler.is_paused(streamed_sound)
     }
     /*
     pub fn load_streamed_sound(&self) -> Result<StreamedSound, AudioError>{
